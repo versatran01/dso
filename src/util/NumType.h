@@ -147,7 +147,7 @@ struct AffLight {
 
   // Affine Parameters:
   double a,
-      b; // I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
+      b;  // I_frame = exp(a)*I_global + b. // I_global = exp(-a)*(I_frame - b).
 
   static Vec2 fromToVecExposure(float exposureF, float exposureT, AffLight g2F,
                                 AffLight g2T) {
@@ -165,4 +165,4 @@ struct AffLight {
   Vec2 vec() { return Vec2(a, b); }
 };
 
-} // namespace dso
+}  // namespace dso

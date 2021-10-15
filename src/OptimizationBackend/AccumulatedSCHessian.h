@@ -23,11 +23,12 @@
 
 #pragma once
 
+#include <math.h>
+
 #include "OptimizationBackend/MatrixAccumulators.h"
 #include "util/IndexThreadReduce.h"
 #include "util/NumType.h"
 #include "vector"
-#include <math.h>
 
 namespace dso {
 
@@ -35,7 +36,7 @@ class EFPoint;
 class EnergyFunctional;
 
 class AccumulatedSCHessianSSE {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   inline AccumulatedSCHessianSSE() {
     for (int i = 0; i < NUM_THREADS; i++) {
@@ -47,24 +48,18 @@ public:
   };
   inline ~AccumulatedSCHessianSSE() {
     for (int i = 0; i < NUM_THREADS; i++) {
-      if (accE[i] != 0)
-        delete[] accE[i];
-      if (accEB[i] != 0)
-        delete[] accEB[i];
-      if (accD[i] != 0)
-        delete[] accD[i];
+      if (accE[i] != 0) delete[] accE[i];
+      if (accEB[i] != 0) delete[] accEB[i];
+      if (accD[i] != 0) delete[] accD[i];
     }
   };
 
   inline void setZero(int n, int min = 0, int max = 1, Vec10 *stats = 0,
                       int tid = 0) {
     if (n != nframes[tid]) {
-      if (accE[tid] != 0)
-        delete[] accE[tid];
-      if (accEB[tid] != 0)
-        delete[] accEB[tid];
-      if (accD[tid] != 0)
-        delete[] accD[tid];
+      if (accE[tid] != 0) delete[] accE[tid];
+      if (accEB[tid] != 0) delete[] accEB[tid];
+      if (accD[tid] != 0) delete[] accD[tid];
       accE[tid] = new AccumulatorXX<8, CPARS>[n * n];
       accEB[tid] = new AccumulatorX<8>[n * n];
       accD[tid] = new AccumulatorXX<8, 8>[n * n * n];
@@ -76,8 +71,7 @@ public:
       accE[tid][i].initialize();
       accEB[tid][i].initialize();
 
-      for (int j = 0; j < n; j++)
-        accD[tid][i * n + j].initialize();
+      for (int j = 0; j < n; j++) accD[tid][i * n + j].initialize();
     }
     nframes[tid] = n;
   }
@@ -137,9 +131,9 @@ public:
       addPoint((*points)[i], shiftPriorToZero, tid);
   }
 
-private:
+ private:
   void stitchDoubleInternal(MatXX *H, VecX *b, EnergyFunctional const *const EF,
                             int min, int max, Vec10 *stats, int tid);
 };
 
-} // namespace dso
+}  // namespace dso

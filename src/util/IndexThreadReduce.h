@@ -22,16 +22,18 @@
  */
 
 #pragma once
+#include <stdio.h>
+
+#include <iostream>
+
 #include "boost/thread.hpp"
 #include "util/settings.h"
-#include <iostream>
-#include <stdio.h>
 
 namespace dso {
 
-template <typename Running> class IndexThreadReduce {
-
-public:
+template <typename Running>
+class IndexThreadReduce {
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   inline IndexThreadReduce() {
@@ -55,16 +57,14 @@ public:
     todo_signal.notify_all();
     exMutex.unlock();
 
-    for (int i = 0; i < NUM_THREADS; i++)
-      workerThreads[i].join();
+    for (int i = 0; i < NUM_THREADS; i++) workerThreads[i].join();
 
     printf("destroyed ThreadReduce\n");
   }
 
-  inline void
-  reduce(boost::function<void(int, int, Running *, int)> callPerIndex,
-         int first, int end, int stepSize = 0) {
-
+  inline void reduce(
+      boost::function<void(int, int, Running *, int)> callPerIndex, int first,
+      int end, int stepSize = 0) {
     memset(&stats, 0, sizeof(Running));
 
     //		if(!multiThreading)
@@ -104,12 +104,10 @@ public:
 
       // check if actually all are finished.
       bool allDone = true;
-      for (int i = 0; i < NUM_THREADS; i++)
-        allDone = allDone && isDone[i];
+      for (int i = 0; i < NUM_THREADS; i++) allDone = allDone && isDone[i];
 
       // all are finished! exit.
-      if (allDone)
-        break;
+      if (allDone) break;
     }
 
     nextIndex = 0;
@@ -122,7 +120,7 @@ public:
 
   Running stats;
 
-private:
+ private:
   boost::thread workerThreads[NUM_THREADS];
   bool isDone[NUM_THREADS];
   bool gotOne[NUM_THREADS];
@@ -192,4 +190,4 @@ private:
     }
   }
 };
-} // namespace dso
+}  // namespace dso

@@ -22,6 +22,7 @@
  */
 
 #include "OptimizationBackend/EnergyFunctionalStructs.h"
+
 #include "FullSystem/FullSystem.h"
 #include "FullSystem/HessianBlocks.h"
 #include "FullSystem/Residuals.h"
@@ -68,8 +69,7 @@ void EFPoint::takeData() {
   priorF = data->hasDepthPrior
                ? setting_idepthFixPrior * SCALE_IDEPTH * SCALE_IDEPTH
                : 0;
-  if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
-    priorF = 0;
+  if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR) priorF = 0;
 
   deltaF = data->idepth - data->idepth_zero;
 }
@@ -104,4 +104,4 @@ void EFResidual::fixLinearizationF(EnergyFunctional *ef) {
   isLinearized = true;
 }
 
-} // namespace dso
+}  // namespace dso

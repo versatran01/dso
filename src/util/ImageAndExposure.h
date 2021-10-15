@@ -28,12 +28,12 @@
 namespace dso {
 
 class ImageAndExposure {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-  float *image; // irradiance. between 0 and 256
-  int w, h;     // width and height;
+  float *image;  // irradiance. between 0 and 256
+  int w, h;      // width and height;
   double timestamp;
-  float exposure_time; // exposure time in ms.
+  float exposure_time;  // exposure time in ms.
   inline ImageAndExposure(int w_, int h_, double timestamp_ = 0)
       : w(w_), h(h_), timestamp(timestamp_) {
     image = new float[w * h];
@@ -53,4 +53,4 @@ public:
   }
 };
 
-} // namespace dso
+}  // namespace dso

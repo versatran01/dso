@@ -25,25 +25,23 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <thread>
 #include <unistd.h>
 
-#include "IOWrapper/ImageDisplay.h"
-#include "IOWrapper/Output3DWrapper.h"
-
-#include "util/DatasetReader.h"
-#include "util/globalCalib.h"
-#include "util/globalFuncs.h"
-#include "util/settings.h"
 #include <boost/thread.hpp>
+#include <thread>
 
 #include "FullSystem/FullSystem.h"
 #include "FullSystem/PixelSelector2.h"
-#include "OptimizationBackend/MatrixAccumulators.h"
-#include "util/NumType.h"
-
+#include "IOWrapper/ImageDisplay.h"
+#include "IOWrapper/Output3DWrapper.h"
 #include "IOWrapper/OutputWrapper/SampleOutputWrapper.h"
 #include "IOWrapper/Pangolin/PangolinDSOViewer.h"
+#include "OptimizationBackend/MatrixAccumulators.h"
+#include "util/DatasetReader.h"
+#include "util/NumType.h"
+#include "util/globalCalib.h"
+#include "util/globalFuncs.h"
+#include "util/settings.h"
 
 std::string vignette = "";
 std::string gammaCalib = "";
@@ -56,8 +54,8 @@ int start = 0;
 int end = 100000;
 bool prefetch = false;
 float playbackSpeed =
-    0; // 0 for linearize (play as fast as possible, while sequentializing
-       // tracking & mapping). otherwise, factor on timestamps.
+    0;  // 0 for linearize (play as fast as possible, while sequentializing
+        // tracking & mapping). otherwise, factor on timestamps.
 bool preload = false;
 bool useSampleOutput = false;
 
@@ -80,20 +78,20 @@ void exitThread() {
   sigaction(SIGINT, &sigIntHandler, NULL);
 
   firstRosSpin = true;
-  while (true)
-    pause();
+  while (true) pause();
 }
 
 void settingsDefault(int preset) {
   printf("\n=============== PRESET Settings: ===============\n");
   if (preset == 0 || preset == 1) {
-    printf("DEFAULT settings:\n"
-           "- %s real-time enforcing\n"
-           "- 2000 active points\n"
-           "- 5-7 active frames\n"
-           "- 1-6 LM iteration each KF\n"
-           "- original image resolution\n",
-           preset == 0 ? "no " : "1x");
+    printf(
+        "DEFAULT settings:\n"
+        "- %s real-time enforcing\n"
+        "- 2000 active points\n"
+        "- 5-7 active frames\n"
+        "- 1-6 LM iteration each KF\n"
+        "- original image resolution\n",
+        preset == 0 ? "no " : "1x");
 
     playbackSpeed = (preset == 0 ? 0 : 1);
     preload = preset == 1;
@@ -108,13 +106,14 @@ void settingsDefault(int preset) {
   }
 
   if (preset == 2 || preset == 3) {
-    printf("FAST settings:\n"
-           "- %s real-time enforcing\n"
-           "- 800 active points\n"
-           "- 4-6 active frames\n"
-           "- 1-4 LM iteration each KF\n"
-           "- 424 x 320 image resolution\n",
-           preset == 0 ? "no " : "5x");
+    printf(
+        "FAST settings:\n"
+        "- %s real-time enforcing\n"
+        "- 800 active points\n"
+        "- 4-6 active frames\n"
+        "- 1-4 LM iteration each KF\n"
+        "- 424 x 320 image resolution\n",
+        preset == 0 ? "no " : "5x");
 
     playbackSpeed = (preset == 2 ? 0 : 5);
     preload = preset == 3;
@@ -263,24 +262,27 @@ void parseArgument(char *arg) {
     if (option == 1) {
       debugSaveImages = true;
       if (42 == system("rm -rf images_out"))
-        printf("system call returned 42 - what are the odds?. This is only "
-               "here to shut up the compiler.\n");
+        printf(
+            "system call returned 42 - what are the odds?. This is only "
+            "here to shut up the compiler.\n");
       if (42 == system("mkdir images_out"))
-        printf("system call returned 42 - what are the odds?. This is only "
-               "here to shut up the compiler.\n");
+        printf(
+            "system call returned 42 - what are the odds?. This is only "
+            "here to shut up the compiler.\n");
       if (42 == system("rm -rf images_out"))
-        printf("system call returned 42 - what are the odds?. This is only "
-               "here to shut up the compiler.\n");
+        printf(
+            "system call returned 42 - what are the odds?. This is only "
+            "here to shut up the compiler.\n");
       if (42 == system("mkdir images_out"))
-        printf("system call returned 42 - what are the odds?. This is only "
-               "here to shut up the compiler.\n");
+        printf(
+            "system call returned 42 - what are the odds?. This is only "
+            "here to shut up the compiler.\n");
       printf("SAVE IMAGES!\n");
     }
     return;
   }
 
   if (1 == sscanf(arg, "mode=%d", &option)) {
-
     mode = option;
     if (option == 0) {
       printf("PHOTOMETRIC MODE WITH CALIBRATION!\n");
@@ -288,16 +290,18 @@ void parseArgument(char *arg) {
     if (option == 1) {
       printf("PHOTOMETRIC MODE WITHOUT CALIBRATION!\n");
       setting_photometricCalibration = 0;
-      setting_affineOptModeA = 0; //-1: fix. >=0: optimize (with prior, if > 0).
-      setting_affineOptModeB = 0; //-1: fix. >=0: optimize (with prior, if > 0).
+      setting_affineOptModeA =
+          0;  //-1: fix. >=0: optimize (with prior, if > 0).
+      setting_affineOptModeB =
+          0;  //-1: fix. >=0: optimize (with prior, if > 0).
     }
     if (option == 2) {
       printf("PHOTOMETRIC MODE WITH PERFECT IMAGES!\n");
       setting_photometricCalibration = 0;
       setting_affineOptModeA =
-          -1; //-1: fix. >=0: optimize (with prior, if > 0).
+          -1;  //-1: fix. >=0: optimize (with prior, if > 0).
       setting_affineOptModeB =
-          -1; //-1: fix. >=0: optimize (with prior, if > 0).
+          -1;  //-1: fix. >=0: optimize (with prior, if > 0).
       setting_minGradHistAdd = 3;
     }
     return;
@@ -308,8 +312,7 @@ void parseArgument(char *arg) {
 
 int main(int argc, char **argv) {
   // setlocale(LC_ALL, "");
-  for (int i = 1; i < argc; i++)
-    parseArgument(argv[i]);
+  for (int i = 1; i < argc; i++) parseArgument(argv[i]);
 
   // hook crtl+C.
   boost::thread exThread = boost::thread(exitThread);
@@ -320,8 +323,9 @@ int main(int argc, char **argv) {
 
   if (setting_photometricCalibration > 0 &&
       reader->getPhotometricGamma() == 0) {
-    printf("ERROR: dont't have photometric calibation. Need to use commandline "
-           "options mode=1 or mode=2 ");
+    printf(
+        "ERROR: dont't have photometric calibation. Need to use commandline "
+        "options mode=1 or mode=2 ");
     exit(1);
   }
 
@@ -331,8 +335,7 @@ int main(int argc, char **argv) {
   if (reverse) {
     printf("REVERSE!!!!");
     lstart = end - 1;
-    if (lstart >= reader->getNumImages())
-      lstart = reader->getNumImages() - 1;
+    if (lstart >= reader->getNumImages()) lstart = reader->getNumImages() - 1;
     lend = start;
     linc = -1;
   }
@@ -384,7 +387,7 @@ int main(int argc, char **argv) {
     double sInitializerOffset = 0;
 
     for (int ii = 0; ii < (int)idsToPlay.size(); ii++) {
-      if (!fullSystem->initialized) // if not initialized: reset start time.
+      if (!fullSystem->initialized)  // if not initialized: reset start time.
       {
         gettimeofday(&tv_start, NULL);
         started = clock();
@@ -417,8 +420,7 @@ int main(int argc, char **argv) {
         }
       }
 
-      if (!skipFrame)
-        fullSystem->addActiveFrame(img, i);
+      if (!skipFrame) fullSystem->addActiveFrame(img, i);
 
       delete img;
 
@@ -430,8 +432,7 @@ int main(int argc, char **argv) {
               fullSystem->outputWrapper;
           delete fullSystem;
 
-          for (IOWrap::Output3DWrapper *ow : wraps)
-            ow->reset();
+          for (IOWrap::Output3DWrapper *ow : wraps) ow->reset();
 
           fullSystem = new FullSystem();
           fullSystem->setGammaFunction(reader->getPhotometricGamma());
@@ -463,18 +464,19 @@ int main(int argc, char **argv) {
     double MilliSecondsTakenMT =
         sInitializerOffset + ((tv_end.tv_sec - tv_start.tv_sec) * 1000.0f +
                               (tv_end.tv_usec - tv_start.tv_usec) / 1000.0f);
-    printf("\n======================"
-           "\n%d Frames (%.1f fps)"
-           "\n%.2fms per frame (single core); "
-           "\n%.2fms per frame (multi core); "
-           "\n%.3fx (single core); "
-           "\n%.3fx (multi core); "
-           "\n======================\n\n",
-           numFramesProcessed, numFramesProcessed / numSecondsProcessed,
-           MilliSecondsTakenSingle / numFramesProcessed,
-           MilliSecondsTakenMT / (float)numFramesProcessed,
-           1000 / (MilliSecondsTakenSingle / numSecondsProcessed),
-           1000 / (MilliSecondsTakenMT / numSecondsProcessed));
+    printf(
+        "\n======================"
+        "\n%d Frames (%.1f fps)"
+        "\n%.2fms per frame (single core); "
+        "\n%.2fms per frame (multi core); "
+        "\n%.3fx (single core); "
+        "\n%.3fx (multi core); "
+        "\n======================\n\n",
+        numFramesProcessed, numFramesProcessed / numSecondsProcessed,
+        MilliSecondsTakenSingle / numFramesProcessed,
+        MilliSecondsTakenMT / (float)numFramesProcessed,
+        1000 / (MilliSecondsTakenSingle / numSecondsProcessed),
+        1000 / (MilliSecondsTakenMT / numSecondsProcessed));
     // fullSystem->printFrameLifetimes();
     if (setting_logStuff) {
       std::ofstream tmlog;
@@ -491,8 +493,7 @@ int main(int argc, char **argv) {
     }
   });
 
-  if (viewer != 0)
-    viewer->run();
+  if (viewer != 0) viewer->run();
 
   runthread.join();
 

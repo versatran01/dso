@@ -64,8 +64,7 @@ CoarseInitializer::CoarseInitializer(int ww, int hh)
 }
 CoarseInitializer::~CoarseInitializer() {
   for (int lvl = 0; lvl < pyrLevelsUsed; lvl++) {
-    if (points[lvl] != 0)
-      delete[] points[lvl];
+    if (points[lvl] != 0) delete[] points[lvl];
   }
 
   delete[] JbBuffer;
@@ -77,15 +76,14 @@ bool CoarseInitializer::trackFrame(
     std::vector<IOWrap::Output3DWrapper *> &wraps) {
   newFrame = newFrameHessian;
 
-  for (IOWrap::Output3DWrapper *ow : wraps)
-    ow->pushLiveFrame(newFrameHessian);
+  for (IOWrap::Output3DWrapper *ow : wraps) ow->pushLiveFrame(newFrameHessian);
 
   int maxIterations[] = {5, 5, 10, 30, 50};
 
-  alphaK = 2.5 * 2.5; //*freeDebugParam1*freeDebugParam1;
-  alphaW = 150 * 150; //*freeDebugParam2*freeDebugParam2;
-  regWeight = 0.8;    //*freeDebugParam4;
-  couplingWeight = 1; //*freeDebugParam5;
+  alphaK = 2.5 * 2.5;  //*freeDebugParam1*freeDebugParam1;
+  alphaW = 150 * 150;  //*freeDebugParam2*freeDebugParam2;
+  regWeight = 0.8;     //*freeDebugParam4;
+  couplingWeight = 1;  //*freeDebugParam5;
 
   if (!snapped) {
     thisToNext.translation().setZero();
@@ -106,12 +104,11 @@ bool CoarseInitializer::trackFrame(
   if (firstFrame->ab_exposure > 0 && newFrame->ab_exposure > 0)
     refToNew_aff_current =
         AffLight(logf(newFrame->ab_exposure / firstFrame->ab_exposure),
-                 0); // coarse approximation.
+                 0);  // coarse approximation.
 
   Vec3f latestRes = Vec3f::Zero();
   for (int lvl = pyrLevelsUsed - 1; lvl >= 0; lvl--) {
-    if (lvl < pyrLevelsUsed - 1)
-      propagateDown(lvl + 1);
+    if (lvl < pyrLevelsUsed - 1) propagateDown(lvl + 1);
 
     Mat88f H, Hsc;
     Vec8f b, bsc;
@@ -141,8 +138,7 @@ bool CoarseInitializer::trackFrame(
     int iteration = 0;
     while (true) {
       Mat88f Hl = H;
-      for (int i = 0; i < 8; i++)
-        Hl(i, i) *= (1 + lambda);
+      for (int i = 0; i < 8; i++) Hl(i, i) *= (1 + lambda);
       Hl -= Hsc * (1 / (1 + lambda));
       Vec8f bl = b - bsc * (1 / (1 + lambda));
 
@@ -156,7 +152,7 @@ bool CoarseInitializer::trackFrame(
               (Hl.topLeftCorner<6, 6>().ldlt().solve(bl.head<6>())));
         inc.tail<2>().setZero();
       } else
-        inc = -(wM * (Hl.ldlt().solve(bl))); //=-H^-1 * b.
+        inc = -(wM * (Hl.ldlt().solve(bl)));  //=-H^-1 * b.
 
       SE3 refToNew_new =
           SE3::exp(inc.head<6>().cast<double>()) * refToNew_current;
@@ -193,8 +189,7 @@ bool CoarseInitializer::trackFrame(
       }
 
       if (accept) {
-        if (resNew[1] == alphaK * numPoints[lvl])
-          snapped = true;
+        if (resNew[1] == alphaK * numPoints[lvl]) snapped = true;
         H = H_new;
         b = b_new;
         Hsc = Hsc_new;
@@ -206,13 +201,11 @@ bool CoarseInitializer::trackFrame(
         optReg(lvl);
         lambda *= 0.5;
         fails = 0;
-        if (lambda < 0.0001)
-          lambda = 0.0001;
+        if (lambda < 0.0001) lambda = 0.0001;
       } else {
         fails++;
         lambda *= 4;
-        if (lambda > 10000)
-          lambda = 10000;
+        if (lambda > 10000) lambda = 10000;
       }
 
       bool quitOpt = false;
@@ -225,8 +218,7 @@ bool CoarseInitializer::trackFrame(
         quitOpt = true;
       }
 
-      if (quitOpt)
-        break;
+      if (quitOpt) break;
       iteration++;
     }
     latestRes = resOld;
@@ -235,15 +227,12 @@ bool CoarseInitializer::trackFrame(
   thisToNext = refToNew_current;
   thisToNext_aff = refToNew_aff_current;
 
-  for (int i = 0; i < pyrLevelsUsed - 1; i++)
-    propagateUp(i);
+  for (int i = 0; i < pyrLevelsUsed - 1; i++) propagateUp(i);
 
   frameID++;
-  if (!snapped)
-    snappedAt = 0;
+  if (!snapped) snappedAt = 0;
 
-  if (snapped && snappedAt == 0)
-    snappedAt = frameID;
+  if (snapped && snappedAt == 0) snappedAt = frameID;
 
   debugPlot(0, wraps);
 
@@ -255,8 +244,7 @@ void CoarseInitializer::debugPlot(
   bool needCall = false;
   for (IOWrap::Output3DWrapper *ow : wraps)
     needCall = needCall || ow->needPushDepthImage();
-  if (!needCall)
-    return;
+  if (!needCall) return;
 
   int wl = w[lvl], hl = h[lvl];
   Eigen::Vector3f *colorRef = firstFrame->dIp[lvl];
@@ -290,8 +278,7 @@ void CoarseInitializer::debugPlot(
   }
 
   // IOWrap::displayImage("idepth-R", &iRImg, false);
-  for (IOWrap::Output3DWrapper *ow : wraps)
-    ow->pushDepthImage(&iRImg);
+  for (IOWrap::Output3DWrapper *ow : wraps) ow->pushDepthImage(&iRImg);
 }
 
 // calculates residual, Hessian and Hessian-block neede for re-substituting
@@ -384,8 +371,7 @@ Vec3f CoarseInitializer::calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out,
       float dxdd = (t[0] - t[2] * u) / pt[2];
       float dydd = (t[1] - t[2] * v) / pt[2];
 
-      if (hw < 1)
-        hw = sqrtf(hw);
+      if (hw < 1) hw = sqrtf(hw);
       float dxInterp = hw * hitColor[1] * fxl;
       float dyInterp = hw * hitColor[2] * fyl;
       dp0[idx] = new_idepth * dxInterp;
@@ -400,8 +386,7 @@ Vec3f CoarseInitializer::calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out,
       r[idx] = hw * residual;
 
       float maxstep = 1.0f / Vec2f(dxdd * fxl, dydd * fyl).norm();
-      if (maxstep < point->maxstep)
-        point->maxstep = maxstep;
+      if (maxstep < point->maxstep) point->maxstep = maxstep;
 
       // immediately compute dp*dd' and dd*dd' in JbBuffer1.
       JbBuffer_new[i][0] += dp0[idx] * dd[idx];
@@ -480,8 +465,7 @@ Vec3f CoarseInitializer::calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out,
   acc9SC.initialize();
   for (int i = 0; i < npts; i++) {
     Pnt *point = ptsl + i;
-    if (!point->isGood_new)
-      continue;
+    if (!point->isGood_new) continue;
 
     point->lastHessian_new = JbBuffer_new[i][9];
 
@@ -505,10 +489,10 @@ Vec3f CoarseInitializer::calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out,
 
   // printf("nelements in H: %d, in E: %d, in Hsc: %d / 9!\n", (int)acc9.num,
   // (int)E.num, (int)acc9SC.num*9);
-  H_out = acc9.H.topLeftCorner<8, 8>();       // / acc9.num;
-  b_out = acc9.H.topRightCorner<8, 1>();      // / acc9.num;
-  H_out_sc = acc9SC.H.topLeftCorner<8, 8>();  // / acc9.num;
-  b_out_sc = acc9SC.H.topRightCorner<8, 1>(); // / acc9.num;
+  H_out = acc9.H.topLeftCorner<8, 8>();        // / acc9.num;
+  b_out = acc9.H.topRightCorner<8, 1>();       // / acc9.num;
+  H_out_sc = acc9SC.H.topLeftCorner<8, 8>();   // / acc9.num;
+  b_out_sc = acc9SC.H.topRightCorner<8, 1>();  // / acc9.num;
 
   H_out(0, 0) += alphaOpt * npts;
   H_out(1, 1) += alphaOpt * npts;
@@ -544,15 +528,13 @@ float CoarseInitializer::rescale() {
 }
 
 Vec3f CoarseInitializer::calcEC(int lvl) {
-  if (!snapped)
-    return Vec3f(0, 0, numPoints[lvl]);
+  if (!snapped) return Vec3f(0, 0, numPoints[lvl]);
   AccumulatorX<2> E;
   E.initialize();
   int npts = numPoints[lvl];
   for (int i = 0; i < npts; i++) {
     Pnt *point = points[lvl] + i;
-    if (!point->isGood_new)
-      continue;
+    if (!point->isGood_new) continue;
     float rOld = (point->idepth - point->iR);
     float rNew = (point->idepth_new - point->iR);
     E.updateNoWeight(Vec2f(rOld * rOld, rNew * rNew));
@@ -569,24 +551,20 @@ void CoarseInitializer::optReg(int lvl) {
   int npts = numPoints[lvl];
   Pnt *ptsl = points[lvl];
   if (!snapped) {
-    for (int i = 0; i < npts; i++)
-      ptsl[i].iR = 1;
+    for (int i = 0; i < npts; i++) ptsl[i].iR = 1;
     return;
   }
 
   for (int i = 0; i < npts; i++) {
     Pnt *point = ptsl + i;
-    if (!point->isGood)
-      continue;
+    if (!point->isGood) continue;
 
     float idnn[10];
     int nnn = 0;
     for (int j = 0; j < 10; j++) {
-      if (point->neighbours[j] == -1)
-        continue;
+      if (point->neighbours[j] == -1) continue;
       Pnt *other = ptsl + point->neighbours[j];
-      if (!other->isGood)
-        continue;
+      if (!other->isGood) continue;
       idnn[nnn] = other->iR;
       nnn++;
     }
@@ -616,8 +594,7 @@ void CoarseInitializer::propagateUp(int srcLvl) {
 
   for (int i = 0; i < nptss; i++) {
     Pnt *point = ptss + i;
-    if (!point->isGood)
-      continue;
+    if (!point->isGood) continue;
 
     Pnt *parent = ptst + point->parent;
     parent->iR += point->iR * point->lastHessian;
@@ -647,8 +624,7 @@ void CoarseInitializer::propagateDown(int srcLvl) {
     Pnt *point = ptst + i;
     Pnt *parent = ptss + point->parent;
 
-    if (!parent->isGood || parent->lastHessian < 0.1)
-      continue;
+    if (!parent->isGood || parent->lastHessian < 0.1) continue;
     if (!point->isGood) {
       point->iR = point->idepth = point->idepth_new = parent->iR;
       point->isGood = true;
@@ -706,8 +682,7 @@ void CoarseInitializer::setFirst(CalibHessian *HCalib,
       npts = makePixelStatus(firstFrame->dIp[lvl], statusMapB, w[lvl], h[lvl],
                              densities[lvl] * w[0] * h[0]);
 
-    if (points[lvl] != 0)
-      delete[] points[lvl];
+    if (points[lvl] != 0) delete[] points[lvl];
     points[lvl] = new Pnt[npts];
 
     // set idepth map to initially 1 everywhere.
@@ -741,7 +716,7 @@ void CoarseInitializer::setFirst(CalibHessian *HCalib,
 
           //				float gth = setting_outlierTH *
           //(sqrtf(sumGrad2)+setting_outlierTHSumComponent);
-          //pl[nl].outlierTH = patternNum*gth*gth;
+          // pl[nl].outlierTH = patternNum*gth*gth;
           //
 
           pl[nl].outlierTH = patternNum * setting_outlierTH;
@@ -762,8 +737,7 @@ void CoarseInitializer::setFirst(CalibHessian *HCalib,
   snapped = false;
   frameID = snappedAt = 0;
 
-  for (int i = 0; i < pyrLevelsUsed; i++)
-    dGrads[i].setZero();
+  for (int i = 0; i < pyrLevelsUsed; i++) dGrads[i].setZero();
 }
 
 void CoarseInitializer::resetPoints(int lvl) {
@@ -795,26 +769,20 @@ void CoarseInitializer::doStep(int lvl, float lambda, Vec8f inc) {
   Pnt *pts = points[lvl];
   int npts = numPoints[lvl];
   for (int i = 0; i < npts; i++) {
-    if (!pts[i].isGood)
-      continue;
+    if (!pts[i].isGood) continue;
 
     float b = JbBuffer[i][8] + JbBuffer[i].head<8>().dot(inc);
     float step = -b * JbBuffer[i][9] / (1 + lambda);
 
     float maxstep = maxPixelStep * pts[i].maxstep;
-    if (maxstep > idMaxStep)
-      maxstep = idMaxStep;
+    if (maxstep > idMaxStep) maxstep = idMaxStep;
 
-    if (step > maxstep)
-      step = maxstep;
-    if (step < -maxstep)
-      step = -maxstep;
+    if (step > maxstep) step = maxstep;
+    if (step < -maxstep) step = -maxstep;
 
     float newIdepth = pts[i].idepth + step;
-    if (newIdepth < 1e-3)
-      newIdepth = 1e-3;
-    if (newIdepth > 50)
-      newIdepth = 50;
+    if (newIdepth < 1e-3) newIdepth = 1e-3;
+    if (newIdepth > 50) newIdepth = 50;
     pts[i].idepth_new = newIdepth;
   }
 }
@@ -908,8 +876,7 @@ void CoarseInitializer::makeNN() {
         assert(ret_index[k] >= 0 && ret_index[k] < npts);
         myidx++;
       }
-      for (int k = 0; k < nn; k++)
-        pts[i].neighboursDist[k] *= 10 / sumDF;
+      for (int k = 0; k < nn; k++) pts[i].neighboursDist[k] *= 10 / sumDF;
 
       if (lvl < pyrLevelsUsed - 1) {
         resultSet1.init(ret_index, ret_dist);
@@ -930,7 +897,6 @@ void CoarseInitializer::makeNN() {
 
   // done.
 
-  for (int i = 0; i < pyrLevelsUsed; i++)
-    delete indexes[i];
+  for (int i = 0; i < pyrLevelsUsed; i++) delete indexes[i];
 }
-} // namespace dso
+}  // namespace dso

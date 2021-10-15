@@ -23,10 +23,11 @@
 
 #pragma once
 
+#include <math.h>
+
 #include "OptimizationBackend/RawResidualJacobian.h"
 #include "util/NumType.h"
 #include "vector"
-#include <math.h>
 
 namespace dso {
 
@@ -41,7 +42,7 @@ class EFFrame;
 class EnergyFunctional;
 
 class EFResidual {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   inline EFResidual(PointFrameResidual *org, EFPoint *point_, EFFrame *host_,
@@ -83,7 +84,7 @@ public:
 enum EFPointStatus { PS_GOOD = 0, PS_MARGINALIZE, PS_DROP };
 
 class EFPoint {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   EFPoint(PointHessian *d, EFFrame *host_) : data(d), host(host_) {
     takeData();
@@ -116,21 +117,21 @@ public:
 };
 
 class EFFrame {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   EFFrame(FrameHessian *d) : data(d) { takeData(); }
   void takeData();
 
-  Vec8 prior;       // prior hessian (diagonal)
-  Vec8 delta_prior; // = state-state_prior (E_prior = (delta_prior)' *
-                    // diag(prior) * (delta_prior)
-  Vec8 delta;       // state - state_zero.
+  Vec8 prior;        // prior hessian (diagonal)
+  Vec8 delta_prior;  // = state-state_prior (E_prior = (delta_prior)' *
+                     // diag(prior) * (delta_prior)
+  Vec8 delta;        // state - state_zero.
 
   std::vector<EFPoint *> points;
   FrameHessian *data;
-  int idx; // idx in frames.
+  int idx;  // idx in frames.
 
   int frameID;
 };
 
-} // namespace dso
+}  // namespace dso

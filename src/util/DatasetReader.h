@@ -22,17 +22,17 @@
  */
 
 #pragma once
-#include "util/globalCalib.h"
-#include "util/globalFuncs.h"
-#include "util/settings.h"
+#include <dirent.h>
 
 #include <algorithm>
-#include <dirent.h>
 #include <fstream>
 #include <sstream>
 
 #include "IOWrapper/ImageRW.h"
 #include "util/Undistort.h"
+#include "util/globalCalib.h"
+#include "util/globalFuncs.h"
+#include "util/settings.h"
 
 #if HAS_ZIPLIB
 #include "zip.h"
@@ -52,18 +52,15 @@ inline int getdir(std::string dir, std::vector<std::string> &files) {
   while ((dirp = readdir(dp)) != NULL) {
     std::string name = std::string(dirp->d_name);
 
-    if (name != "." && name != "..")
-      files.push_back(name);
+    if (name != "." && name != "..") files.push_back(name);
   }
   closedir(dp);
 
   std::sort(files.begin(), files.end());
 
-  if (dir.at(dir.length() - 1) != '/')
-    dir = dir + "/";
+  if (dir.at(dir.length() - 1) != '/') dir = dir + "/";
   for (unsigned int i = 0; i < files.size(); i++) {
-    if (files[i].at(0) != '/')
-      files[i] = dir + files[i];
+    if (files[i].at(0) != '/') files[i] = dir + files[i];
   }
 
   return files.size();
@@ -81,14 +78,13 @@ struct PrepImageItem {
   }
 
   inline void release() {
-    if (pt != 0)
-      delete pt;
+    if (pt != 0) delete pt;
     pt = 0;
   }
 };
 
 class ImageFolderReader {
-public:
+ public:
   ImageFolderReader(std::string path, std::string calibFile,
                     std::string gammaFile, std::string vignetteFile) {
     this->path = path;
@@ -115,8 +111,7 @@ public:
       for (int k = 0; k < numEntries; k++) {
         const char *name = zip_get_name(ziparchive, k, ZIP_FL_ENC_STRICT);
         std::string nstr = std::string(name);
-        if (nstr == "." || nstr == "..")
-          continue;
+        if (nstr == "." || nstr == "..") continue;
         files.push_back(name);
       }
 
@@ -144,10 +139,8 @@ public:
   }
   ~ImageFolderReader() {
 #if HAS_ZIPLIB
-    if (ziparchive != 0)
-      zip_close(ziparchive);
-    if (databuffer != 0)
-      delete databuffer;
+    if (ziparchive != 0) zip_close(ziparchive);
+    if (databuffer != 0) delete databuffer;
 #endif
 
     delete undistort;
@@ -176,12 +169,9 @@ public:
   int getNumImages() { return files.size(); }
 
   double getTimestamp(int id) {
-    if (timestamps.size() == 0)
-      return id * 0.1f;
-    if (id >= (int)timestamps.size())
-      return 0;
-    if (id < 0)
-      return 0;
+    if (timestamps.size() == 0) return id * 0.1f;
+    if (id >= (int)timestamps.size()) return 0;
+    if (id < 0) return 0;
     return timestamps[id];
   }
 
@@ -194,15 +184,14 @@ public:
   }
 
   inline float *getPhotometricGamma() {
-    if (undistort == 0 || undistort->photometricUndist == 0)
-      return 0;
+    if (undistort == 0 || undistort->photometricUndist == 0) return 0;
     return undistort->photometricUndist->getG();
   }
 
   // undistorter. [0] always exists, [1-2] only when MT is enabled.
   Undistort *undistort;
 
-private:
+ private:
   MinimalImageB *getImageRaw_internal(int id, int unused) {
     if (!isZipped) {
       // CHANGE FOR ZIP FILE
@@ -289,12 +278,10 @@ private:
           num++;
         }
 
-        if (num > 0)
-          exposures[i] = sum / num;
+        if (num > 0) exposures[i] = sum / num;
       }
 
-      if (exposures[i] == 0)
-        exposuresGood = false;
+      if (exposures[i] == 0) exposuresGood = false;
     }
 
     if ((int)getNumImages() != (int)timestamps.size()) {

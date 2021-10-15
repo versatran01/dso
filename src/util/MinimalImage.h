@@ -28,8 +28,9 @@
 
 namespace dso {
 
-template <typename T> class MinimalImage {
-public:
+template <typename T>
+class MinimalImage {
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   int w;
   int h;
@@ -52,8 +53,7 @@ public:
   }
 
   inline ~MinimalImage() {
-    if (ownData)
-      delete[] data;
+    if (ownData) delete[] data;
   }
 
   inline MinimalImage *getClone() {
@@ -68,8 +68,7 @@ public:
   inline void setBlack() { memset(data, 0, sizeof(T) * w * h); }
 
   inline void setConst(T val) {
-    for (int i = 0; i < w * h; i++)
-      data[i] = val;
+    for (int i = 0; i < w * h; i++) data[i] = val;
   }
 
   inline void setPixel1(const float &u, const float &v, T val) {
@@ -109,7 +108,7 @@ public:
     }
   }
 
-private:
+ private:
   bool ownData;
 };
 
@@ -120,4 +119,4 @@ typedef MinimalImage<unsigned char> MinimalImageB;
 typedef MinimalImage<Vec3b> MinimalImageB3;
 typedef MinimalImage<unsigned short> MinimalImageB16;
 
-} // namespace dso
+}  // namespace dso

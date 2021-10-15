@@ -36,7 +36,7 @@ class EFPoint;
 class EnergyFunctional;
 
 class AccumulatedTopHessianSSE {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   inline AccumulatedTopHessianSSE() {
     for (int tid = 0; tid < NUM_THREADS; tid++) {
@@ -47,16 +47,14 @@ public:
   };
   inline ~AccumulatedTopHessianSSE() {
     for (int tid = 0; tid < NUM_THREADS; tid++) {
-      if (acc[tid] != 0)
-        delete[] acc[tid];
+      if (acc[tid] != 0) delete[] acc[tid];
     }
   };
 
   inline void setZero(int nFrames, int min = 0, int max = 1, Vec10 *stats = 0,
                       int tid = 0) {
     if (nFrames != nframes[tid]) {
-      if (acc[tid] != 0)
-        delete[] acc[tid];
+      if (acc[tid] != 0) delete[] acc[tid];
 #if USE_XI_MODEL
       acc[tid] = new Accumulator14[nFrames * nFrames];
 #else
@@ -136,13 +134,12 @@ public:
   void addPointsInternal(std::vector<EFPoint *> *points,
                          EnergyFunctional const *const ef, int min = 0,
                          int max = 1, Vec10 *stats = 0, int tid = 0) {
-    for (int i = min; i < max; i++)
-      addPoint<mode>((*points)[i], ef, tid);
+    for (int i = min; i < max; i++) addPoint<mode>((*points)[i], ef, tid);
   }
 
-private:
+ private:
   void stitchDoubleInternal(MatXX *H, VecX *b, EnergyFunctional const *const EF,
                             bool usePrior, int min, int max, Vec10 *stats,
                             int tid);
 };
-} // namespace dso
+}  // namespace dso

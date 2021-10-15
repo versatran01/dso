@@ -49,11 +49,11 @@ EIGEN_STRONG_INLINE bool projectPoint(const float &u_pt, const float &v_pt,
   return Ku > 1.1f && Kv > 1.1f && Ku < wM3G && Kv < hM3G;
 }
 
-EIGEN_STRONG_INLINE bool
-projectPoint(const float &u_pt, const float &v_pt, const float &idepth,
-             const int &dx, const int &dy, CalibHessian *const &HCalib,
-             const Mat33f &R, const Vec3f &t, float &drescale, float &u,
-             float &v, float &Ku, float &Kv, Vec3f &KliP, float &new_idepth) {
+EIGEN_STRONG_INLINE bool projectPoint(
+    const float &u_pt, const float &v_pt, const float &idepth, const int &dx,
+    const int &dy, CalibHessian *const &HCalib, const Mat33f &R, const Vec3f &t,
+    float &drescale, float &u, float &v, float &Ku, float &Kv, Vec3f &KliP,
+    float &new_idepth) {
   KliP = Vec3f((u_pt + dx - HCalib->cxl()) * HCalib->fxli(),
                (v_pt + dy - HCalib->cyl()) * HCalib->fyli(), 1);
 
@@ -61,8 +61,7 @@ projectPoint(const float &u_pt, const float &v_pt, const float &idepth,
   drescale = 1.0f / ptp[2];
   new_idepth = idepth * drescale;
 
-  if (!(drescale > 0))
-    return false;
+  if (!(drescale > 0)) return false;
 
   u = ptp[0] * drescale;
   v = ptp[1] * drescale;
@@ -72,4 +71,4 @@ projectPoint(const float &u_pt, const float &v_pt, const float &idepth,
   return Ku > 1.1f && Kv > 1.1f && Ku < wM3G && Kv < hM3G;
 }
 
-} // namespace dso
+}  // namespace dso

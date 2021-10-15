@@ -43,9 +43,9 @@
 
 namespace dso {
 
-PointHessian *
-FullSystem::optimizeImmaturePoint(ImmaturePoint *point, int minObs,
-                                  ImmaturePointTemporaryResidual *residuals) {
+PointHessian *FullSystem::optimizeImmaturePoint(
+    ImmaturePoint *point, int minObs,
+    ImmaturePointTemporaryResidual *residuals) {
   int nres = 0;
   for (FrameHessian *fh : frameHessians) {
     if (fh != point->host) {
@@ -58,7 +58,7 @@ FullSystem::optimizeImmaturePoint(ImmaturePoint *point, int minObs,
   }
   assert(nres == ((int)frameHessians.size()) - 1);
 
-  bool print = false; // rand()%50==0;
+  bool print = false;  // rand()%50==0;
 
   float lastEnergy = 0;
   float lastHdd = 0;
@@ -80,9 +80,10 @@ FullSystem::optimizeImmaturePoint(ImmaturePoint *point, int minObs,
   }
 
   if (print)
-    printf("Activate point. %d residuals. H=%f. Initial Energy: %f. Initial "
-           "Id=%f\n",
-           nres, lastHdd, lastEnergy, currentIdepth);
+    printf(
+        "Activate point. %d residuals. H=%f. Initial Energy: %f. Initial "
+        "Id=%f\n",
+        nres, lastHdd, lastEnergy, currentIdepth);
 
   float lambda = 0.1;
   for (int iteration = 0; iteration < setting_GNItsOnPointActivation;
@@ -126,27 +127,24 @@ FullSystem::optimizeImmaturePoint(ImmaturePoint *point, int minObs,
       lambda *= 5;
     }
 
-    if (fabsf(step) < 0.0001 * currentIdepth)
-      break;
+    if (fabsf(step) < 0.0001 * currentIdepth) break;
   }
 
   if (!std::isfinite(currentIdepth)) {
     printf("MAJOR ERROR! point idepth is nan after initialization (%f).\n",
            currentIdepth);
     return (PointHessian *)((
-        long)(-1)); // yeah I'm like 99% sure this is OK on 32bit systems.
+        long)(-1));  // yeah I'm like 99% sure this is OK on 32bit systems.
   }
 
   int numGoodRes = 0;
   for (int i = 0; i < nres; i++)
-    if (residuals[i].state_state == ResState::IN)
-      numGoodRes++;
+    if (residuals[i].state_state == ResState::IN) numGoodRes++;
 
   if (numGoodRes < minObs) {
-    if (print)
-      printf("OptPoint: OUTLIER!\n");
+    if (print) printf("OptPoint: OUTLIER!\n");
     return (PointHessian *)((
-        long)(-1)); // yeah I'm like 99% sure this is OK on 32bit systems.
+        long)(-1));  // yeah I'm like 99% sure this is OK on 32bit systems.
   }
 
   PointHessian *p = new PointHessian(point, &Hcalib);
@@ -183,11 +181,10 @@ FullSystem::optimizeImmaturePoint(ImmaturePoint *point, int minObs,
       }
     }
 
-  if (print)
-    printf("point activated!\n");
+  if (print) printf("point activated!\n");
 
   statistics_numActivatedPoints++;
   return p;
 }
 
-} // namespace dso
+}  // namespace dso

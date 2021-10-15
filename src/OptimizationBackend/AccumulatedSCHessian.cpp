@@ -22,10 +22,10 @@
  */
 
 #include "OptimizationBackend/AccumulatedSCHessian.h"
-#include "OptimizationBackend/EnergyFunctional.h"
-#include "OptimizationBackend/EnergyFunctionalStructs.h"
 
 #include "FullSystem/HessianBlocks.h"
+#include "OptimizationBackend/EnergyFunctional.h"
+#include "OptimizationBackend/EnergyFunctionalStructs.h"
 
 namespace dso {
 
@@ -33,8 +33,7 @@ void AccumulatedSCHessianSSE::addPoint(EFPoint *p, bool shiftPriorToZero,
                                        int tid) {
   int ngoodres = 0;
   for (EFResidual *r : p->residualsAll)
-    if (r->isActive())
-      ngoodres++;
+    if (r->isActive()) ngoodres++;
   if (ngoodres == 0) {
     p->HdiF = 0;
     p->bdSumF = 0;
@@ -44,15 +43,13 @@ void AccumulatedSCHessianSSE::addPoint(EFPoint *p, bool shiftPriorToZero,
   }
 
   float H = p->Hdd_accAF + p->Hdd_accLF + p->priorF;
-  if (H < 1e-10)
-    H = 1e-10;
+  if (H < 1e-10) H = 1e-10;
 
   p->data->idepth_hessian = H;
 
   p->HdiF = 1.0 / H;
   p->bdSumF = p->bd_accAF + p->bd_accLF;
-  if (shiftPriorToZero)
-    p->bdSumF += p->priorF * p->deltaF;
+  if (shiftPriorToZero) p->bdSumF += p->priorF * p->deltaF;
   VecCf Hcd = p->Hcd_accAF + p->Hcd_accLF;
   accHcc[tid].update(Hcd, Hcd, p->HdiF);
   accbc[tid].update(Hcd, p->bdSumF * p->HdiF);
@@ -61,13 +58,11 @@ void AccumulatedSCHessianSSE::addPoint(EFPoint *p, bool shiftPriorToZero,
 
   int nFrames2 = nframes[tid] * nframes[tid];
   for (EFResidual *r1 : p->residualsAll) {
-    if (!r1->isActive())
-      continue;
+    if (!r1->isActive()) continue;
     int r1ht = r1->hostIDX + r1->targetIDX * nframes[tid];
 
     for (EFResidual *r2 : p->residualsAll) {
-      if (!r2->isActive())
-        continue;
+      if (!r2->isActive()) continue;
 
       accD[tid][r1ht + r2->targetIDX * nFrames2].update(r1->JpJdF, r2->JpJdF,
                                                         p->HdiF);
@@ -84,9 +79,8 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
   if (tid == -1) {
     toAggregate = 1;
     tid = 0;
-  } // special case: if we dont do multithreading, dont aggregate.
-  if (min == max)
-    return;
+  }  // special case: if we dont do multithreading, dont aggregate.
+  if (min == max) return;
 
   int nf = nframes[0];
   int nframes2 = nf * nf;
@@ -123,8 +117,7 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
 
       for (int tid2 = 0; tid2 < toAggregate; tid2++) {
         accD[tid2][ijkIdx].finish();
-        if (accD[tid2][ijkIdx].num == 0)
-          continue;
+        if (accD[tid2][ijkIdx].num == 0) continue;
         accDM += accD[tid2][ijkIdx].A1m.cast<double>();
       }
 
@@ -153,14 +146,13 @@ void AccumulatedSCHessianSSE::stitchDoubleInternal(
   //	{
   //		int hIdx = 4+h*8;
   //		H.block<4,8>(0,hIdx).noalias() =
-  //H.block<8,4>(hIdx,0).transpose();
+  // H.block<8,4>(hIdx,0).transpose();
   //	}
 }
 
 void AccumulatedSCHessianSSE::stitchDouble(MatXX &H, VecX &b,
                                            EnergyFunctional const *const EF,
                                            int tid) {
-
   int nf = nframes[0];
   int nframes2 = nf * nf;
 
@@ -191,8 +183,7 @@ void AccumulatedSCHessianSSE::stitchDouble(MatXX &H, VecX &b,
         int ikIdx = i + nf * k;
 
         accD[tid][ijkIdx].finish();
-        if (accD[tid][ijkIdx].num == 0)
-          continue;
+        if (accD[tid][ijkIdx].num == 0) continue;
         Mat88 accDM = accD[tid][ijkIdx].A1m.cast<double>();
 
         H.block<8, 8>(iIdx, iIdx) +=
@@ -222,4 +213,4 @@ void AccumulatedSCHessianSSE::stitchDouble(MatXX &H, VecX &b,
   }
 }
 
-} // namespace dso
+}  // namespace dso

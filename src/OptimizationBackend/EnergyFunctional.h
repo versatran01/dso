@@ -23,11 +23,12 @@
 
 #pragma once
 
+#include <math.h>
+
 #include "map"
 #include "util/IndexThreadReduce.h"
 #include "util/NumType.h"
 #include "vector"
-#include <math.h>
 
 namespace dso {
 
@@ -50,7 +51,7 @@ extern bool EFIndicesValid;
 extern bool EFDeltaValid;
 
 class EnergyFunctional {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   friend class EFFrame;
   friend class EFPoint;
@@ -105,7 +106,7 @@ public:
            Eigen::aligned_allocator<std::pair<const uint64_t, Eigen::Vector2i>>>
       connectivityMap;
 
-private:
+ private:
   VecX getStitchedDeltaF() const;
 
   void resubstituteF_MT(VecX x, CalibHessian *HCalib, bool MT);
@@ -141,4 +142,4 @@ private:
 
   float currentLambda;
 };
-} // namespace dso
+}  // namespace dso

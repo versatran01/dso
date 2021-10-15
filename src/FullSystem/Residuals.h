@@ -47,7 +47,7 @@ struct FullJacRowT {
 };
 
 class PointFrameResidual {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   EFResidual *efResidual;
@@ -91,4 +91,4 @@ public:
   void printRows(std::vector<VecX> &v, VecX &r, int nFrames, int nPoints, int M,
                  int res);
 };
-} // namespace dso
+}  // namespace dso

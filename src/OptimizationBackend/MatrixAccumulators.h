@@ -30,8 +30,9 @@
 
 namespace dso {
 
-template <int i, int j> class AccumulatorXX {
-public:
+template <int i, int j>
+class AccumulatorXX {
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   Eigen::Matrix<float, i, j> A;
@@ -58,7 +59,7 @@ public:
     shiftUp(false);
   }
 
-private:
+ private:
   float numIn1, numIn1k, numIn1m;
 
   void shiftUp(bool force) {
@@ -78,7 +79,7 @@ private:
 };
 
 class Accumulator11 {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   float A;
@@ -124,7 +125,7 @@ public:
     numIn1++;
   }
 
-private:
+ private:
   EIGEN_ALIGN16 float SSEData[4 * 1];
   EIGEN_ALIGN16 float SSEData1k[4 * 1];
   EIGEN_ALIGN16 float SSEData1m[4 * 1];
@@ -149,8 +150,9 @@ private:
   }
 };
 
-template <int i> class AccumulatorX {
-public:
+template <int i>
+class AccumulatorX {
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   Eigen::Matrix<float, i, 1> A;
@@ -182,7 +184,7 @@ public:
     shiftUp(false);
   }
 
-private:
+ private:
   float numIn1, numIn1k, numIn1m;
 
   void shiftUp(bool force) {
@@ -202,7 +204,7 @@ private:
 };
 
 class Accumulator14 {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   Mat1414f H;
@@ -706,7 +708,7 @@ public:
     shiftUp(false);
   }
 
-private:
+ private:
   EIGEN_ALIGN16 float SSEData[4 * 105];
   EIGEN_ALIGN16 float SSEData1k[4 * 105];
   EIGEN_ALIGN16 float SSEData1m[4 * 105];
@@ -742,7 +744,7 @@ private:
  * numerically robust to large sums.
  */
 class AccumulatorApprox {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   Mat1313f H;
@@ -795,7 +797,6 @@ public:
 
   inline void updateSSE(const float *const x, const float *const y,
                         const float a, const float b, const float c) {
-
     Data[0] +=
         a * x[0] * x[0] + c * y[0] * y[0] + b * (x[0] * y[0] + y[0] * x[0]);
     Data[1] +=
@@ -928,7 +929,6 @@ public:
   inline void update(const float *const x4, const float *const x6,
                      const float *const y4, const float *const y6,
                      const float a, const float b, const float c) {
-
     Data[0] += a * x4[0] * x4[0] + c * y4[0] * y4[0] +
                b * (x4[0] * y4[0] + y4[0] * x4[0]);
     Data[1] += a * x4[1] * x4[0] + c * y4[1] * y4[0] +
@@ -1111,7 +1111,7 @@ public:
     BotRight_Data[5] += a22;
   }
 
-private:
+ private:
   EIGEN_ALIGN16 float Data[60];
   EIGEN_ALIGN16 float Data1k[60];
   EIGEN_ALIGN16 float Data1m[60];
@@ -1170,7 +1170,7 @@ private:
 };
 
 class Accumulator9 {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   Mat99f H;
@@ -1543,7 +1543,6 @@ public:
   inline void updateSingleWeighted(float J0, float J1, float J2, float J3,
                                    float J4, float J5, float J6, float J7,
                                    float J8, float w, int off = 0) {
-
     float *pt = SSEData + off;
     *pt += J0 * J0 * w;
     pt += 4;
@@ -1657,7 +1656,7 @@ public:
     shiftUp(false);
   }
 
-private:
+ private:
   EIGEN_ALIGN16 float SSEData[4 * 45];
   EIGEN_ALIGN16 float SSEData1k[4 * 45];
   EIGEN_ALIGN16 float SSEData1m[4 * 45];
@@ -1685,4 +1684,4 @@ private:
     }
   }
 };
-} // namespace dso
+}  // namespace dso

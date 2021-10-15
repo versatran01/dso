@@ -74,10 +74,12 @@ void FullSystem::flagFramesForMarginalization(FrameHessian *newFH) {
       //			printf("MARGINALIZE frame %d, as only %'d/%'d
       // points remaining (%'d %'d %'d %'d). VisInLast %'d / %'d. traces %d,
       // activated %d!\n", 					fh->frameID, in,
-      // in+out, 					(int)fh->pointHessians.size(), (int)fh->immaturePoints.size(),
+      // in+out,
+      // (int)fh->pointHessians.size(), (int)fh->immaturePoints.size(),
       //					(int)fh->pointHessiansMarginalized.size(),
       //(int)fh->pointHessiansOut.size(),
-      //visInLast, outInLast, 					fh->statistics_tracesCreatedForThisFrame,
+      // visInLast, outInLast,
+      // fh->statistics_tracesCreatedForThisFrame,
       // fh->statistics_pointsActivatedForThisFrame);
       fh->flaggedForMarginalization = true;
       flagged++;
@@ -88,7 +90,8 @@ void FullSystem::flagFramesForMarginalization(FrameHessian *newFH) {
       //(int)fh->pointHessians.size(), (int)fh->immaturePoints.size(),
       //					(int)fh->pointHessiansMarginalized.size(),
       //(int)fh->pointHessiansOut.size(),
-      //visInLast, outInLast, 					fh->statistics_tracesCreatedForThisFrame,
+      // visInLast, outInLast,
+      // fh->statistics_tracesCreatedForThisFrame,
       // fh->statistics_pointsActivatedForThisFrame);
     }
   }
@@ -122,7 +125,7 @@ void FullSystem::flagFramesForMarginalization(FrameHessian *newFH) {
 
     //		printf("MARGINALIZE frame %d, as it is the closest (score
     //%.2f)!\n", 				toMarginalize->frameID,
-    //smallestScore);
+    // smallestScore);
     toMarginalize->flaggedForMarginalization = true;
     flagged++;
   }
@@ -143,8 +146,7 @@ void FullSystem::marginalizeFrame(FrameHessian *frame) {
   // drop all observations of existing points in that frame.
 
   for (FrameHessian *fh : frameHessians) {
-    if (fh == frame)
-      continue;
+    if (fh == frame) continue;
 
     for (PointHessian *ph : fh->pointHessians) {
       for (unsigned int i = 0; i < ph->residuals.size(); i++) {
@@ -186,4 +188,4 @@ void FullSystem::marginalizeFrame(FrameHessian *frame) {
   ef->setAdjointsF(&Hcalib);
 }
 
-} // namespace dso
+}  // namespace dso

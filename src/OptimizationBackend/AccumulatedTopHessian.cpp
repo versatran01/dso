@@ -37,7 +37,7 @@ namespace dso {
 template <int mode>
 void AccumulatedTopHessianSSE::addPoint(
     EFPoint *p, EnergyFunctional const *const ef,
-    int tid) // 0 = active, 1 = linearized, 2=marginalize
+    int tid)  // 0 = active, 1 = linearized, 2=marginalize
 {
   assert(mode == 0 || mode == 1 || mode == 2);
 
@@ -50,16 +50,13 @@ void AccumulatedTopHessianSSE::addPoint(
 
   for (EFResidual *r : p->residualsAll) {
     if (mode == 0) {
-      if (r->isLinearized || !r->isActive())
-        continue;
+      if (r->isLinearized || !r->isActive()) continue;
     }
     if (mode == 1) {
-      if (!r->isLinearized || !r->isActive())
-        continue;
+      if (!r->isLinearized || !r->isActive()) continue;
     }
     if (mode == 2) {
-      if (!r->isActive())
-        continue;
+      if (!r->isActive()) continue;
       assert(r->isLinearized);
     }
 
@@ -68,10 +65,8 @@ void AccumulatedTopHessianSSE::addPoint(
     Mat18f dp = ef->adHTdeltaF[htIDX];
 
     VecNRf resApprox;
-    if (mode == 0)
-      resApprox = rJ->resF;
-    if (mode == 2)
-      resApprox = r->res_toZeroF;
+    if (mode == 0) resApprox = rJ->resF;
+    if (mode == 2) resApprox = r->res_toZeroF;
     if (mode == 1) {
       // compute Jp*delta
       __m128 Jp_delta_x = _mm_set1_ps(rJ->Jpdxi[0].dot(dp.head<6>()) +
@@ -167,8 +162,7 @@ void AccumulatedTopHessianSSE::stitchDouble(MatXX &H, VecX &b,
       int aidx = h + nframes[tid] * t;
 
       acc[tid][aidx].finish();
-      if (acc[tid][aidx].num == 0)
-        continue;
+      if (acc[tid][aidx].num == 0) continue;
 
       MatPCPC accH = acc[tid][aidx].H.cast<double>();
 
@@ -236,9 +230,8 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
   if (tid == -1) {
     toAggregate = 1;
     tid = 0;
-  } // special case: if we dont do multithreading, dont aggregate.
-  if (min == max)
-    return;
+  }  // special case: if we dont do multithreading, dont aggregate.
+  if (min == max) return;
 
   for (int k = min; k < max; k++) {
     int h = k % nframes[0];
@@ -254,8 +247,7 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
 
     for (int tid2 = 0; tid2 < toAggregate; tid2++) {
       acc[tid2][aidx].finish();
-      if (acc[tid2][aidx].num == 0)
-        continue;
+      if (acc[tid2][aidx].num == 0) continue;
       accH += acc[tid2][aidx].H.cast<double>();
     }
 
@@ -301,4 +293,4 @@ void AccumulatedTopHessianSSE::stitchDoubleInternal(
   }
 }
 
-} // namespace dso
+}  // namespace dso

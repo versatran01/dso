@@ -36,7 +36,7 @@ struct CalibHessian;
 struct FrameHessian;
 
 struct Pnt {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   // index in jacobian. never changes (actually, there is no reason why).
   float u, v;
@@ -44,7 +44,7 @@ public:
   // idepth / isgood / energy during optimization.
   float idepth;
   bool isGood;
-  Vec2f energy; // (UenergyPhotometric, energyRegularizer)
+  Vec2f energy;  // (UenergyPhotometric, energyRegularizer)
   bool isGood_new;
   float idepth_new;
   Vec2f energy_new;
@@ -71,7 +71,7 @@ public:
 };
 
 class CoarseInitializer {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   CoarseInitializer(int w, int h);
   ~CoarseInitializer();
@@ -93,7 +93,7 @@ public:
   FrameHessian *firstFrame;
   FrameHessian *newFrame;
 
-private:
+ private:
   Mat33 K[PYR_LEVELS];
   Mat33 Ki[PYR_LEVELS];
   double fx[PYR_LEVELS];
@@ -118,8 +118,8 @@ private:
   Eigen::DiagonalMatrix<float, 8> wM;
 
   // temporary buffers for H and b.
-  Vec10f *JbBuffer; // 0-7: sum(dd * dp). 8: sum(res*dd). 9:
-                    // 1/(1+sum(dd*dd))=inverse hessian entry.
+  Vec10f *JbBuffer;  // 0-7: sum(dd * dp). 8: sum(res*dd). 9:
+                     // 1/(1+sum(dd*dd))=inverse hessian entry.
   Vec10f *JbBuffer_new;
 
   Accumulator9 acc9;
@@ -135,7 +135,7 @@ private:
   Vec3f calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out, Mat88f &H_out_sc,
                      Vec8f &b_out_sc, const SE3 &refToNew,
                      AffLight refToNew_aff, bool plot);
-  Vec3f calcEC(int lvl); // returns OLD NERGY, NEW ENERGY, NUM TERMS.
+  Vec3f calcEC(int lvl);  // returns OLD NERGY, NEW ENERGY, NUM TERMS.
   void optReg(int lvl);
 
   void propagateUp(int srcLvl);
@@ -174,9 +174,10 @@ struct FLANNPointcloud {
     else
       return points[idx].v;
   }
-  template <class BBOX> bool kdtree_get_bbox(BBOX & /* bb */) const {
+  template <class BBOX>
+  bool kdtree_get_bbox(BBOX & /* bb */) const {
     return false;
   }
 };
 
-} // namespace dso
+}  // namespace dso

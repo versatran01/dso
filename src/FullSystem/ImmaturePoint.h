@@ -28,7 +28,7 @@
 namespace dso {
 
 struct ImmaturePointTemporaryResidual {
-public:
+ public:
   ResState state_state;
   double state_energy;
   ResState state_NewState;
@@ -37,16 +37,16 @@ public:
 };
 
 enum ImmaturePointStatus {
-  IPS_GOOD = 0,     // traced well and good
-  IPS_OOB,          // OOB: end tracking & marginalize!
-  IPS_OUTLIER,      // energy too high: if happens again: outlier!
-  IPS_SKIPPED,      // traced well and good (but not actually traced).
-  IPS_BADCONDITION, // not traced because of bad condition.
+  IPS_GOOD = 0,      // traced well and good
+  IPS_OOB,           // OOB: end tracking & marginalize!
+  IPS_OUTLIER,       // energy too high: if happens again: outlier!
+  IPS_SKIPPED,       // traced well and good (but not actually traced).
+  IPS_BADCONDITION,  // not traced because of bad condition.
   IPS_UNINITIALIZED
-}; // not even traced once.
+};  // not even traced once.
 
 class ImmaturePoint {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   // static values
   float color[MAX_RES_PER_POINT];
@@ -91,7 +91,7 @@ public:
   float calcResidual(CalibHessian *HCalib, const float outlierTHSlack,
                      ImmaturePointTemporaryResidual *tmpRes, float idepth);
 
-private:
+ private:
 };
 
-} // namespace dso
+}  // namespace dso
