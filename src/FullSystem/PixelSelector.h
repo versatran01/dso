@@ -30,7 +30,7 @@ namespace dso {
 const float minUseGrad_pixsel = 10;
 
 template <int pot>
-inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
+inline int gridMaxSelection(Eigen::Vector3f *grads, bool *map_out, int w, int h,
                             float THFac) {
   memset(map_out, 0, sizeof(bool) * w * h);
 
@@ -44,7 +44,7 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
 
       float bestXX = 0, bestYY = 0, bestXY = 0, bestYX = 0;
 
-      Eigen::Vector3f* grads0 = grads + x + y * w;
+      Eigen::Vector3f *grads0 = grads + x + y * w;
       for (int dx = 0; dx < pot; dx++)
         for (int dy = 0; dy < pot; dy++) {
           int idx = dx + dy * w;
@@ -79,22 +79,26 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
           }
         }
 
-      bool* map0 = map_out + x + y * w;
+      bool *map0 = map_out + x + y * w;
 
       if (bestXXID >= 0) {
-        if (!map0[bestXXID]) numGood++;
+        if (!map0[bestXXID])
+          numGood++;
         map0[bestXXID] = true;
       }
       if (bestYYID >= 0) {
-        if (!map0[bestYYID]) numGood++;
+        if (!map0[bestYYID])
+          numGood++;
         map0[bestYYID] = true;
       }
       if (bestXYID >= 0) {
-        if (!map0[bestXYID]) numGood++;
+        if (!map0[bestXYID])
+          numGood++;
         map0[bestXYID] = true;
       }
       if (bestYXID >= 0) {
-        if (!map0[bestYXID]) numGood++;
+        if (!map0[bestYXID])
+          numGood++;
         map0[bestYXID] = true;
       }
     }
@@ -103,7 +107,7 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
   return numGood;
 }
 
-inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
+inline int gridMaxSelection(Eigen::Vector3f *grads, bool *map_out, int w, int h,
                             int pot, float THFac) {
   memset(map_out, 0, sizeof(bool) * w * h);
 
@@ -117,7 +121,7 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
 
       float bestXX = 0, bestYY = 0, bestXY = 0, bestYX = 0;
 
-      Eigen::Vector3f* grads0 = grads + x + y * w;
+      Eigen::Vector3f *grads0 = grads + x + y * w;
       for (int dx = 0; dx < pot; dx++)
         for (int dy = 0; dy < pot; dy++) {
           int idx = dx + dy * w;
@@ -152,22 +156,26 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
           }
         }
 
-      bool* map0 = map_out + x + y * w;
+      bool *map0 = map_out + x + y * w;
 
       if (bestXXID >= 0) {
-        if (!map0[bestXXID]) numGood++;
+        if (!map0[bestXXID])
+          numGood++;
         map0[bestXXID] = true;
       }
       if (bestYYID >= 0) {
-        if (!map0[bestYYID]) numGood++;
+        if (!map0[bestYYID])
+          numGood++;
         map0[bestYYID] = true;
       }
       if (bestXYID >= 0) {
-        if (!map0[bestXYID]) numGood++;
+        if (!map0[bestXYID])
+          numGood++;
         map0[bestXYID] = true;
       }
       if (bestYXID >= 0) {
-        if (!map0[bestYXID]) numGood++;
+        if (!map0[bestYXID])
+          numGood++;
         map0[bestYXID] = true;
       }
     }
@@ -176,10 +184,11 @@ inline int gridMaxSelection(Eigen::Vector3f* grads, bool* map_out, int w, int h,
   return numGood;
 }
 
-inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
+inline int makePixelStatus(Eigen::Vector3f *grads, bool *map, int w, int h,
                            float desiredDensity, int recsLeft = 5,
                            float THFac = 1) {
-  if (sparsityFactor < 1) sparsityFactor = 1;
+  if (sparsityFactor < 1)
+    sparsityFactor = 1;
 
   int numGoodPoints;
 
@@ -216,10 +225,12 @@ inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
 
   int newSparsity = (sparsityFactor * sqrtf(quotia)) + 0.7f;
 
-  if (newSparsity < 1) newSparsity = 1;
+  if (newSparsity < 1)
+    newSparsity = 1;
 
   float oldTHFac = THFac;
-  if (newSparsity == 1 && sparsityFactor == 1) THFac = 0.5;
+  if (newSparsity == 1 && sparsityFactor == 1)
+    THFac = 0.5;
 
   if ((abs(newSparsity - sparsityFactor) < 1 && THFac == oldTHFac) ||
       (quotia > 0.8 && 1.0f / quotia > 0.8) || recsLeft == 0) {
@@ -236,4 +247,4 @@ inline int makePixelStatus(Eigen::Vector3f* grads, bool* map, int w, int h,
   }
 }
 
-}  // namespace dso
+} // namespace dso

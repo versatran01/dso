@@ -59,9 +59,9 @@ PointFrameResidual::~PointFrameResidual() {
   delete J;
 }
 
-PointFrameResidual::PointFrameResidual(PointHessian* point_,
-                                       FrameHessian* host_,
-                                       FrameHessian* target_)
+PointFrameResidual::PointFrameResidual(PointHessian *point_,
+                                       FrameHessian *host_,
+                                       FrameHessian *target_)
     : point(point_), host(host_), target(target_) {
   efResidual = 0;
   instanceCounter++;
@@ -72,7 +72,7 @@ PointFrameResidual::PointFrameResidual(PointHessian* point_,
   isNew = true;
 }
 
-double PointFrameResidual::linearize(CalibHessian* HCalib) {
+double PointFrameResidual::linearize(CalibHessian *HCalib) {
   state_NewEnergyWithOutlier = -1;
 
   if (state_state == ResState::OOB) {
@@ -80,16 +80,16 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
     return state_energy;
   }
 
-  FrameFramePrecalc* precalc = &(host->targetPrecalc[target->idx]);
+  FrameFramePrecalc *precalc = &(host->targetPrecalc[target->idx]);
   float energyLeft = 0;
-  const Eigen::Vector3f* dIl = target->dI;
+  const Eigen::Vector3f *dIl = target->dI;
   // const float* const Il = target->I;
-  const Mat33f& PRE_KRKiTll = precalc->PRE_KRKiTll;
-  const Vec3f& PRE_KtTll = precalc->PRE_KtTll;
-  const Mat33f& PRE_RTll_0 = precalc->PRE_RTll_0;
-  const Vec3f& PRE_tTll_0 = precalc->PRE_tTll_0;
-  const float* const color = point->color;
-  const float* const weights = point->weights;
+  const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
+  const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
+  const Mat33f &PRE_RTll_0 = precalc->PRE_RTll_0;
+  const Vec3f &PRE_tTll_0 = precalc->PRE_tTll_0;
+  const float *const color = point->color;
+  const float *const weights = point->weights;
 
   Vec2f affLL = precalc->PRE_aff_mode;
   float b0 = precalc->PRE_b0_mode;
@@ -203,7 +203,8 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
     energyLeft += w * w * hw * residual * residual * (2 - hw);
 
     {
-      if (hw < 1) hw = sqrtf(hw);
+      if (hw < 1)
+        hw = sqrtf(hw);
       hw = hw * w;
 
       hitColor[1] *= hw;
@@ -232,8 +233,10 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
       wJI2_sum +=
           hw * hw * (hitColor[1] * hitColor[1] + hitColor[2] * hitColor[2]);
 
-      if (setting_affineOptModeA < 0) J->JabF[0][idx] = 0;
-      if (setting_affineOptModeB < 0) J->JabF[1][idx] = 0;
+      if (setting_affineOptModeA < 0)
+        J->JabF[0][idx] = 0;
+      if (setting_affineOptModeB < 0)
+        J->JabF[1][idx] = 0;
     }
   }
 
@@ -266,13 +269,16 @@ double PointFrameResidual::linearize(CalibHessian* HCalib) {
 }
 
 void PointFrameResidual::debugPlot() {
-  if (state_state == ResState::OOB) return;
+  if (state_state == ResState::OOB)
+    return;
   Vec3b cT = Vec3b(0, 0, 0);
 
   if (freeDebugParam5 == 0) {
     float rT = 20 * sqrt(state_energy / 9);
-    if (rT < 0) rT = 0;
-    if (rT > 255) rT = 255;
+    if (rT < 0)
+      rT = 0;
+    if (rT > 255)
+      rT = 255;
     cT = Vec3b(0, 255 - rT, rT);
   } else {
     if (state_state == ResState::IN)
@@ -297,9 +303,9 @@ void PointFrameResidual::applyRes(bool copyJacobians) {
   if (copyJacobians) {
     if (state_state == ResState::OOB) {
       assert(!efResidual->isActiveAndIsGoodNEW);
-      return;  // can never go back from OOB
+      return; // can never go back from OOB
     }
-    if (state_NewState == ResState::IN)  // && )
+    if (state_NewState == ResState::IN) // && )
     {
       efResidual->isActiveAndIsGoodNEW = true;
       efResidual->takeDataF();
@@ -311,4 +317,4 @@ void PointFrameResidual::applyRes(bool copyJacobians) {
   setState(state_NewState);
   state_energy = state_NewEnergy;
 }
-}  // namespace dso
+} // namespace dso

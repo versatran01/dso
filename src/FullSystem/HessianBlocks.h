@@ -35,9 +35,8 @@
 
 namespace dso {
 
-inline Vec2 affFromTo(
-    const Vec2& from,
-    const Vec2& to)  // contains affine parameters as XtoWorld.
+inline Vec2 affFromTo(const Vec2 &from,
+                      const Vec2 &to) // contains affine parameters as XtoWorld.
 {
   return Vec2(from[0] / to[0], (from[1] - to[1]) / to[0]);
 }
@@ -51,7 +50,7 @@ class FrameShell;
 class EFFrame;
 class EFPoint;
 
-#define SCALE_IDEPTH 1.0f  // scales internal value to idepth.
+#define SCALE_IDEPTH 1.0f // scales internal value to idepth.
 #define SCALE_XI_ROT 1.0f
 #define SCALE_XI_TRANS 0.5f
 #define SCALE_F 50.0f
@@ -73,8 +72,8 @@ struct FrameFramePrecalc {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   // static values
   static int instanceCounter;
-  FrameHessian* host;    // defines row
-  FrameHessian* target;  // defines column
+  FrameHessian *host;   // defines row
+  FrameHessian *target; // defines column
 
   // precalc values
   Mat33f PRE_RTll;
@@ -93,43 +92,43 @@ struct FrameFramePrecalc {
 
   inline ~FrameFramePrecalc() {}
   inline FrameFramePrecalc() { host = target = 0; }
-  void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
+  void set(FrameHessian *host, FrameHessian *target, CalibHessian *HCalib);
 };
 
 struct FrameHessian {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-  EFFrame* efFrame;
+  EFFrame *efFrame;
 
   // constant info & pre-calculated values
   // DepthImageWrap* frame;
-  FrameShell* shell;
+  FrameShell *shell;
 
-  Eigen::Vector3f* dI;  // trace, fine tracking. Used for direction select (not
-                        // for gradient histograms etc.)
-  Eigen::Vector3f* dIp[PYR_LEVELS];   // coarse tracking / coarse initializer.
-                                      // NAN in [0] only.
-  float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms
-                                      // etc.). no NAN.
+  Eigen::Vector3f *dI; // trace, fine tracking. Used for direction select (not
+                       // for gradient histograms etc.)
+  Eigen::Vector3f *dIp[PYR_LEVELS];  // coarse tracking / coarse initializer.
+                                     // NAN in [0] only.
+  float *absSquaredGrad[PYR_LEVELS]; // only used for pixel select (histograms
+                                     // etc.). no NAN.
 
-  int frameID;  // incremental ID for keyframes only!
+  int frameID; // incremental ID for keyframes only!
   static int instanceCounter;
   int idx;
 
   // Photometric Calibration Stuff
-  float frameEnergyTH;  // set dynamically depending on tracking residual
+  float frameEnergyTH; // set dynamically depending on tracking residual
   float ab_exposure;
 
   bool flaggedForMarginalization;
 
-  std::vector<PointHessian*> pointHessians;  // contains all ACTIVE points.
-  std::vector<PointHessian*>
-      pointHessiansMarginalized;  // contains all MARGINALIZED points (= fully
-                                  // marginalized, usually because point went
-                                  // OOB.)
-  std::vector<PointHessian*>
-      pointHessiansOut;  // contains all OUTLIER points (= discarded.).
-  std::vector<ImmaturePoint*>
-      immaturePoints;  // contains all OUTLIER points (= discarded.).
+  std::vector<PointHessian *> pointHessians; // contains all ACTIVE points.
+  std::vector<PointHessian *>
+      pointHessiansMarginalized; // contains all MARGINALIZED points (= fully
+                                 // marginalized, usually because point went
+                                 // OOB.)
+  std::vector<PointHessian *>
+      pointHessiansOut; // contains all OUTLIER points (= discarded.).
+  std::vector<ImmaturePoint *>
+      immaturePoints; // contains all OUTLIER points (= discarded.).
 
   Mat66 nullspaces_pose;
   Mat42 nullspaces_affine;
@@ -139,17 +138,17 @@ struct FrameHessian {
   SE3 worldToCam_evalPT;
   Vec10 state_zero;
   Vec10 state_scaled;
-  Vec10 state;  // [0-5: worldToCam-leftEps. 6-7: a,b]
+  Vec10 state; // [0-5: worldToCam-leftEps. 6-7: a,b]
   Vec10 step;
   Vec10 step_backup;
   Vec10 state_backup;
 
-  EIGEN_STRONG_INLINE const SE3& get_worldToCam_evalPT() const {
+  EIGEN_STRONG_INLINE const SE3 &get_worldToCam_evalPT() const {
     return worldToCam_evalPT;
   }
-  EIGEN_STRONG_INLINE const Vec10& get_state_zero() const { return state_zero; }
-  EIGEN_STRONG_INLINE const Vec10& get_state() const { return state; }
-  EIGEN_STRONG_INLINE const Vec10& get_state_scaled() const {
+  EIGEN_STRONG_INLINE const Vec10 &get_state_zero() const { return state_zero; }
+  EIGEN_STRONG_INLINE const Vec10 &get_state() const { return state; }
+  EIGEN_STRONG_INLINE const Vec10 &get_state_scaled() const {
     return state_scaled;
   }
   EIGEN_STRONG_INLINE const Vec10 get_state_minus_stateZero() const {
@@ -161,7 +160,7 @@ struct FrameHessian {
   SE3 PRE_camToWorld;
   std::vector<FrameFramePrecalc, Eigen::aligned_allocator<FrameFramePrecalc>>
       targetPrecalc;
-  MinimalImageB3* debugImage;
+  MinimalImageB3 *debugImage;
 
   inline Vec6 w2c_leftEps() const { return get_state_scaled().head<6>(); }
   inline AffLight aff_g2l() const {
@@ -172,8 +171,8 @@ struct FrameHessian {
                     get_state_zero()[7] * SCALE_B);
   }
 
-  void setStateZero(const Vec10& state_zero);
-  inline void setState(const Vec10& state) {
+  void setStateZero(const Vec10 &state_zero);
+  inline void setState(const Vec10 &state) {
     this->state = state;
     state_scaled.segment<3>(0) = SCALE_XI_TRANS * state.segment<3>(0);
     state_scaled.segment<3>(3) = SCALE_XI_ROT * state.segment<3>(3);
@@ -186,7 +185,7 @@ struct FrameHessian {
     PRE_camToWorld = PRE_worldToCam.inverse();
     // setCurrentNullspace();
   };
-  inline void setStateScaled(const Vec10& state_scaled) {
+  inline void setStateScaled(const Vec10 &state_scaled) {
     this->state_scaled = state_scaled;
     state.segment<3>(0) = SCALE_XI_TRANS_INVERSE * state_scaled.segment<3>(0);
     state.segment<3>(3) = SCALE_XI_ROT_INVERSE * state_scaled.segment<3>(3);
@@ -199,14 +198,14 @@ struct FrameHessian {
     PRE_camToWorld = PRE_worldToCam.inverse();
     // setCurrentNullspace();
   };
-  inline void setEvalPT(const SE3& worldToCam_evalPT, const Vec10& state) {
+  inline void setEvalPT(const SE3 &worldToCam_evalPT, const Vec10 &state) {
     this->worldToCam_evalPT = worldToCam_evalPT;
     setState(state);
     setStateZero(state);
   };
 
-  inline void setEvalPT_scaled(const SE3& worldToCam_evalPT,
-                               const AffLight& aff_g2l) {
+  inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT,
+                               const AffLight &aff_g2l) {
     Vec10 initial_state = Vec10::Zero();
     initial_state[6] = aff_g2l.a;
     initial_state[7] = aff_g2l.b;
@@ -226,7 +225,8 @@ struct FrameHessian {
       delete[] absSquaredGrad[i];
     }
 
-    if (debugImage != 0) delete debugImage;
+    if (debugImage != 0)
+      delete debugImage;
   };
   inline FrameHessian() {
     instanceCounter++;
@@ -238,14 +238,15 @@ struct FrameHessian {
     debugImage = 0;
   };
 
-  void makeImages(float* color, CalibHessian* HCalib);
+  void makeImages(float *color, CalibHessian *HCalib);
 
   inline Vec10 getPrior() {
     Vec10 p = Vec10::Zero();
     if (frameID == 0) {
       p.head<3>() = Vec3::Constant(setting_initialTransPrior);
       p.segment<3>(3) = Vec3::Constant(setting_initialRotPrior);
-      if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR) p.head<6>().setZero();
+      if (setting_solverMode & SOLVER_REMOVE_POSEPRIOR)
+        p.head<6>().setZero();
 
       p[6] = setting_initialAffAPrior;
       p[7] = setting_initialAffBPrior;
@@ -296,20 +297,20 @@ struct CalibHessian {
 
     instanceCounter++;
     for (int i = 0; i < 256; i++)
-      Binv[i] = B[i] = i;  // set gamma function to identity
+      Binv[i] = B[i] = i; // set gamma function to identity
   };
 
   // normal mode: use the optimized parameters everywhere!
-  inline float& fxl() { return value_scaledf[0]; }
-  inline float& fyl() { return value_scaledf[1]; }
-  inline float& cxl() { return value_scaledf[2]; }
-  inline float& cyl() { return value_scaledf[3]; }
-  inline float& fxli() { return value_scaledi[0]; }
-  inline float& fyli() { return value_scaledi[1]; }
-  inline float& cxli() { return value_scaledi[2]; }
-  inline float& cyli() { return value_scaledi[3]; }
+  inline float &fxl() { return value_scaledf[0]; }
+  inline float &fyl() { return value_scaledf[1]; }
+  inline float &cxl() { return value_scaledf[2]; }
+  inline float &cyl() { return value_scaledf[3]; }
+  inline float &fxli() { return value_scaledi[0]; }
+  inline float &fyli() { return value_scaledi[1]; }
+  inline float &cxli() { return value_scaledi[2]; }
+  inline float &cyli() { return value_scaledi[3]; }
 
-  inline void setValue(const VecC& value) {
+  inline void setValue(const VecC &value) {
     // [0-3: Kl, 4-7: Kr, 8-12: l2r]
     this->value = value;
     value_scaled[0] = SCALE_F * value[0];
@@ -325,7 +326,7 @@ struct CalibHessian {
     this->value_minus_value_zero = this->value - this->value_zero;
   };
 
-  inline void setValueScaled(const VecC& value_scaled) {
+  inline void setValueScaled(const VecC &value_scaled) {
     this->value_scaled = value_scaled;
     this->value_scaledf = this->value_scaled.cast<float>();
     value[0] = SCALE_F_INVERSE * value_scaled[0];
@@ -345,15 +346,19 @@ struct CalibHessian {
 
   EIGEN_STRONG_INLINE float getBGradOnly(float color) {
     int c = color + 0.5f;
-    if (c < 5) c = 5;
-    if (c > 250) c = 250;
+    if (c < 5)
+      c = 5;
+    if (c > 250)
+      c = 250;
     return B[c + 1] - B[c];
   }
 
   EIGEN_STRONG_INLINE float getBInvGradOnly(float color) {
     int c = color + 0.5f;
-    if (c < 5) c = 5;
-    if (c > 250) c = 250;
+    if (c < 5)
+      c = 5;
+    if (c > 250)
+      c = 250;
     return Binv[c + 1] - Binv[c];
   }
 };
@@ -362,16 +367,16 @@ struct CalibHessian {
 struct PointHessian {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   static int instanceCounter;
-  EFPoint* efPoint;
+  EFPoint *efPoint;
 
   // static values
-  float color[MAX_RES_PER_POINT];    // colors in host frame
-  float weights[MAX_RES_PER_POINT];  // host-weights for respective residuals.
+  float color[MAX_RES_PER_POINT];   // colors in host frame
+  float weights[MAX_RES_PER_POINT]; // host-weights for respective residuals.
 
   float u, v;
   int idx;
   float energyTH;
-  FrameHessian* host;
+  FrameHessian *host;
   bool hasDepthPrior;
 
   float my_type;
@@ -408,36 +413,40 @@ struct PointHessian {
     nullspaces_scale = -(idepth * 1.001 - idepth / 1.001) * 500;
   }
 
-  std::vector<PointFrameResidual*>
-      residuals;  // only contains good residuals (not OOB and not OUTLIER).
-                  // Arbitrary order.
-  std::pair<PointFrameResidual*, ResState>
-      lastResiduals[2];  // contains information about residuals to the last two
-                         // (!) frames. ([0] = latest, [1] = the one before).
+  std::vector<PointFrameResidual *>
+      residuals; // only contains good residuals (not OOB and not OUTLIER).
+                 // Arbitrary order.
+  std::pair<PointFrameResidual *, ResState>
+      lastResiduals[2]; // contains information about residuals to the last two
+                        // (!) frames. ([0] = latest, [1] = the one before).
 
   void release();
-  PointHessian(const ImmaturePoint* const rawPoint, CalibHessian* Hcalib);
+  PointHessian(const ImmaturePoint *const rawPoint, CalibHessian *Hcalib);
   inline ~PointHessian() {
     assert(efPoint == 0);
     release();
     instanceCounter--;
   }
 
-  inline bool isOOB(const std::vector<FrameHessian*>& toKeep,
-                    const std::vector<FrameHessian*>& toMarg) const {
+  inline bool isOOB(const std::vector<FrameHessian *> &toKeep,
+                    const std::vector<FrameHessian *> &toMarg) const {
     int visInToMarg = 0;
-    for (PointFrameResidual* r : residuals) {
-      if (r->state_state != ResState::IN) continue;
-      for (FrameHessian* k : toMarg)
-        if (r->target == k) visInToMarg++;
+    for (PointFrameResidual *r : residuals) {
+      if (r->state_state != ResState::IN)
+        continue;
+      for (FrameHessian *k : toMarg)
+        if (r->target == k)
+          visInToMarg++;
     }
     if ((int)residuals.size() >= setting_minGoodActiveResForMarg &&
         numGoodResiduals > setting_minGoodResForMarg + 10 &&
         (int)residuals.size() - visInToMarg < setting_minGoodActiveResForMarg)
       return true;
 
-    if (lastResiduals[0].second == ResState::OOB) return true;
-    if (residuals.size() < 2) return false;
+    if (lastResiduals[0].second == ResState::OOB)
+      return true;
+    if (residuals.size() < 2)
+      return false;
     if (lastResiduals[0].second == ResState::OUTLIER &&
         lastResiduals[1].second == ResState::OUTLIER)
       return true;
@@ -450,4 +459,4 @@ struct PointHessian {
   }
 };
 
-}  // namespace dso
+} // namespace dso

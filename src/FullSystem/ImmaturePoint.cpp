@@ -27,14 +27,9 @@
 #include "util/FrameShell.h"
 
 namespace dso {
-ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian* host_, float type,
-                             CalibHessian* HCalib)
-    : u(u_),
-      v(v_),
-      host(host_),
-      my_type(type),
-      idepth_min(0),
-      idepth_max(NAN),
+ImmaturePoint::ImmaturePoint(int u_, int v_, FrameHessian *host_, float type,
+                             CalibHessian *HCalib)
+    : u(u_), v(v_), host(host_), my_type(type), idepth_min(0), idepth_max(NAN),
       lastTraceStatus(IPS_UNINITIALIZED) {
   gradH.setZero();
 
@@ -72,35 +67,34 @@ ImmaturePoint::~ImmaturePoint() {}
  * * UPDATED -> point has been updated.
  * * SKIP -> point has not been updated.
  */
-ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
-                                           const Mat33f& hostToFrame_KRKi,
-                                           const Vec3f& hostToFrame_Kt,
-                                           const Vec2f& hostToFrame_affine,
-                                           CalibHessian* HCalib,
+ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian *frame,
+                                           const Mat33f &hostToFrame_KRKi,
+                                           const Vec3f &hostToFrame_Kt,
+                                           const Vec2f &hostToFrame_affine,
+                                           CalibHessian *HCalib,
                                            bool debugPrint) {
-  if (lastTraceStatus == ImmaturePointStatus::IPS_OOB) return lastTraceStatus;
+  if (lastTraceStatus == ImmaturePointStatus::IPS_OOB)
+    return lastTraceStatus;
 
-  debugPrint = false;  // rand()%100==0;
+  debugPrint = false; // rand()%100==0;
   float maxPixSearch = (wG[0] + hG[0]) * setting_maxPixSearch;
 
   if (debugPrint)
-    printf(
-        "trace pt (%.1f %.1f) from frame %d to %d. Range %f -> %f. t %f %f "
-        "%f!\n",
-        u, v, host->shell->id, frame->shell->id, idepth_min, idepth_max,
-        hostToFrame_Kt[0], hostToFrame_Kt[1], hostToFrame_Kt[2]);
+    printf("trace pt (%.1f %.1f) from frame %d to %d. Range %f -> %f. t %f %f "
+           "%f!\n",
+           u, v, host->shell->id, frame->shell->id, idepth_min, idepth_max,
+           hostToFrame_Kt[0], hostToFrame_Kt[1], hostToFrame_Kt[2]);
 
-  //	const float stepsize = 1.0;				// stepsize for initial
-  //discrete search.
+  //	const float stepsize = 1.0;				// stepsize for
+  //initial discrete search.
   //	const int GNIterations = 3;				// max # GN
-  //iterations
-  //	const float GNThreshold = 0.1;				// GN stop after this
-  //stepsize.
-  //	const float extraSlackOnTH = 1.2;			// for energy-based outlier
-  //check, be slightly more relaxed by this factor. 	const float slackInterval =
-  //0.8;			// if pixel-interval is smaller than this, leave it
-  //be. 	const float minImprovementFactor = 2;		// if pixel-interval is
-  //smaller than this, leave it be.
+  // iterations
+  //	const float GNThreshold = 0.1;				// GN stop after
+  //this stepsize. 	const float extraSlackOnTH = 1.2;			// for
+  //energy-based outlier check, be slightly more relaxed by this factor.
+  // const float slackInterval = 0.8;			// if pixel-interval is
+  // smaller than this, leave it be. 	const float minImprovementFactor = 2;
+  // // if pixel-interval is smaller than this, leave it be.
   // ============== project min and max. return if one of them is OOB
   // ===================
   Vec3f pr = hostToFrame_KRKi * Vec3f(u, v, 1);
@@ -127,7 +121,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     vMax = ptpMax[1] / ptpMax[2];
 
     if (!(uMax > 4 && vMax > 4 && uMax < wG[0] - 5 && vMax < hG[0] - 5)) {
-      if (debugPrint) printf("OOB uMax  %f %f - %f %f!\n", u, v, uMax, vMax);
+      if (debugPrint)
+        printf("OOB uMax  %f %f - %f %f!\n", u, v, uMax, vMax);
       lastTraceUV = Vec2f(-1, -1);
       lastTracePixelInterval = 0;
       return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -138,7 +133,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
     dist = (uMin - uMax) * (uMin - uMax) + (vMin - vMax) * (vMin - vMax);
     dist = sqrtf(dist);
     if (dist < setting_trace_slackInterval) {
-      if (debugPrint) printf("TOO CERTAIN ALREADY (dist %f)!\n", dist);
+      if (debugPrint)
+        printf("TOO CERTAIN ALREADY (dist %f)!\n", dist);
 
       lastTraceUV = Vec2f(uMax + uMin, vMax + vMin) * 0.5;
       lastTracePixelInterval = dist;
@@ -175,7 +171,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
   // set OOB if scale change too big.
   if (!(idepth_min < 0 || (ptpMin[2] > 0.75 && ptpMin[2] < 1.5))) {
-    if (debugPrint) printf("OOB SCALE %f %f %f!\n", uMax, vMax, ptpMin[2]);
+    if (debugPrint)
+      printf("OOB SCALE %f %f %f!\n", uMax, vMax, ptpMin[2]);
     lastTraceUV = Vec2f(-1, -1);
     lastTracePixelInterval = 0;
     return lastTraceStatus = ImmaturePointStatus::IPS_OOB;
@@ -192,13 +189,15 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
 
   if (errorInPixel * setting_trace_minImprovementFactor > dist &&
       std::isfinite(idepth_max)) {
-    if (debugPrint) printf("NO SIGNIFICANT IMPROVMENT (%f)!\n", errorInPixel);
+    if (debugPrint)
+      printf("NO SIGNIFICANT IMPROVMENT (%f)!\n", errorInPixel);
     lastTraceUV = Vec2f(uMax + uMin, vMax + vMin) * 0.5;
     lastTracePixelInterval = dist;
     return lastTraceStatus = ImmaturePointStatus::IPS_BADCONDITION;
   }
 
-  if (errorInPixel > 10) errorInPixel = 10;
+  if (errorInPixel > 10)
+    errorInPixel = 10;
 
   // ============== do the discrete search ===================
   dx /= dist;
@@ -239,7 +238,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
   float errors[100];
   float bestU = 0, bestV = 0, bestEnergy = 1e10;
   int bestIdx = -1;
-  if (numSteps >= 100) numSteps = 99;
+  if (numSteps >= 100)
+    numSteps = 99;
 
   for (int i = 0; i < numSteps; i++) {
     float energy = 0;
@@ -284,11 +284,13 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
       secondBest = errors[i];
   }
   float newQuality = secondBest / bestEnergy;
-  if (newQuality < quality || numSteps > 10) quality = newQuality;
+  if (newQuality < quality || numSteps > 10)
+    quality = newQuality;
 
   // ============== do GN optimization ===================
   float uBak = bestU, vBak = bestV, gnstepsize = 1, stepBack = 0;
-  if (setting_trace_GNIterations > 0) bestEnergy = 1e5;
+  if (setting_trace_GNIterations > 0)
+    bestEnergy = 1e5;
   int gnStepsGood = 0, gnStepsBad = 0;
   for (int it = 0; it < setting_trace_GNIterations; it++) {
     float H = 1, b = 0, energy = 0;
@@ -333,7 +335,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
       else if (step > 0.5)
         step = 0.5;
 
-      if (!std::isfinite(step)) step = 0;
+      if (!std::isfinite(step))
+        step = 0;
 
       uBak = bestU;
       vBak = bestV;
@@ -348,24 +351,26 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
                it, energy, H, b, step, uBak, vBak, bestU, bestV);
     }
 
-    if (fabsf(stepBack) < setting_trace_GNThreshold) break;
+    if (fabsf(stepBack) < setting_trace_GNThreshold)
+      break;
   }
 
   // ============== detect energy-based outlier. ===================
   //	float absGrad0 = getInterpolatedElement(frame->absSquaredGrad[0],bestU,
-  //bestV, wG[0]); 	float absGrad1 =
-  //getInterpolatedElement(frame->absSquaredGrad[1],bestU*0.5-0.25,
-  //bestV*0.5-0.25, wG[1]); 	float absGrad2 =
-  //getInterpolatedElement(frame->absSquaredGrad[2],bestU*0.25-0.375,
-  //bestV*0.25-0.375, wG[2]);
+  // bestV, wG[0]); 	float absGrad1 =
+  // getInterpolatedElement(frame->absSquaredGrad[1],bestU*0.5-0.25,
+  // bestV*0.5-0.25, wG[1]); 	float absGrad2 =
+  // getInterpolatedElement(frame->absSquaredGrad[2],bestU*0.25-0.375,
+  // bestV*0.25-0.375, wG[2]);
   if (!(bestEnergy < energyTH * setting_trace_extraSlackOnTH))
   //			|| (absGrad0*areaGradientSlackFactor < host->frameGradTH
   //		     && absGrad1*areaGradientSlackFactor <
-  //host->frameGradTH*0.75f
+  // host->frameGradTH*0.75f
   //			 && absGrad2*areaGradientSlackFactor <
-  //host->frameGradTH*0.50f))
+  // host->frameGradTH*0.50f))
   {
-    if (debugPrint) printf("OUTLIER!\n");
+    if (debugPrint)
+      printf("OUTLIER!\n");
 
     lastTracePixelInterval = 0;
     lastTraceUV = Vec2f(-1, -1);
@@ -391,7 +396,8 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
         (pr[2] * (bestV + errorInPixel * dy) - pr[1]) /
         (hostToFrame_Kt[1] - hostToFrame_Kt[2] * (bestV + errorInPixel * dy));
   }
-  if (idepth_min > idepth_max) std::swap<float>(idepth_min, idepth_max);
+  if (idepth_min > idepth_max)
+    std::swap<float>(idepth_min, idepth_max);
 
   if (!std::isfinite(idepth_min) || !std::isfinite(idepth_max) ||
       (idepth_max < 0)) {
@@ -408,11 +414,11 @@ ImmaturePointStatus ImmaturePoint::traceOn(FrameHessian* frame,
   return lastTraceStatus = ImmaturePointStatus::IPS_GOOD;
 }
 
-float ImmaturePoint::getdPixdd(CalibHessian* HCalib,
-                               ImmaturePointTemporaryResidual* tmpRes,
+float ImmaturePoint::getdPixdd(CalibHessian *HCalib,
+                               ImmaturePointTemporaryResidual *tmpRes,
                                float idepth) {
-  FrameFramePrecalc* precalc = &(host->targetPrecalc[tmpRes->target->idx]);
-  const Vec3f& PRE_tTll = precalc->PRE_tTll;
+  FrameFramePrecalc *precalc = &(host->targetPrecalc[tmpRes->target->idx]);
+  const Vec3f &PRE_tTll = precalc->PRE_tTll;
   float drescale, u = 0, v = 0, new_idepth;
   float Ku, Kv;
   Vec3f KliP;
@@ -425,16 +431,16 @@ float ImmaturePoint::getdPixdd(CalibHessian* HCalib,
   return drescale * sqrtf(dxdd * dxdd + dydd * dydd);
 }
 
-float ImmaturePoint::calcResidual(CalibHessian* HCalib,
+float ImmaturePoint::calcResidual(CalibHessian *HCalib,
                                   const float outlierTHSlack,
-                                  ImmaturePointTemporaryResidual* tmpRes,
+                                  ImmaturePointTemporaryResidual *tmpRes,
                                   float idepth) {
-  FrameFramePrecalc* precalc = &(host->targetPrecalc[tmpRes->target->idx]);
+  FrameFramePrecalc *precalc = &(host->targetPrecalc[tmpRes->target->idx]);
 
   float energyLeft = 0;
-  const Eigen::Vector3f* dIl = tmpRes->target->dI;
-  const Mat33f& PRE_KRKiTll = precalc->PRE_KRKiTll;
-  const Vec3f& PRE_KtTll = precalc->PRE_KtTll;
+  const Eigen::Vector3f *dIl = tmpRes->target->dI;
+  const Mat33f &PRE_KRKiTll = precalc->PRE_KRKiTll;
+  const Vec3f &PRE_KtTll = precalc->PRE_KtTll;
   Vec2f affLL = precalc->PRE_aff_mode;
 
   for (int idx = 0; idx < patternNum; idx++) {
@@ -466,23 +472,23 @@ float ImmaturePoint::calcResidual(CalibHessian* HCalib,
   return energyLeft;
 }
 
-double ImmaturePoint::linearizeResidual(CalibHessian* HCalib,
+double ImmaturePoint::linearizeResidual(CalibHessian *HCalib,
                                         const float outlierTHSlack,
-                                        ImmaturePointTemporaryResidual* tmpRes,
-                                        float& Hdd, float& bd, float idepth) {
+                                        ImmaturePointTemporaryResidual *tmpRes,
+                                        float &Hdd, float &bd, float idepth) {
   if (tmpRes->state_state == ResState::OOB) {
     tmpRes->state_NewState = ResState::OOB;
     return tmpRes->state_energy;
   }
 
-  FrameFramePrecalc* precalc = &(host->targetPrecalc[tmpRes->target->idx]);
+  FrameFramePrecalc *precalc = &(host->targetPrecalc[tmpRes->target->idx]);
 
   // check OOB due to scale angle change.
 
   float energyLeft = 0;
-  const Eigen::Vector3f* dIl = tmpRes->target->dI;
-  const Mat33f& PRE_RTll = precalc->PRE_RTll;
-  const Vec3f& PRE_tTll = precalc->PRE_tTll;
+  const Eigen::Vector3f *dIl = tmpRes->target->dI;
+  const Mat33f &PRE_RTll = precalc->PRE_RTll;
+  const Vec3f &PRE_tTll = precalc->PRE_tTll;
   // const float * const Il = tmpRes->target->I;
 
   Vec2f affLL = precalc->PRE_aff_mode;
@@ -538,4 +544,4 @@ double ImmaturePoint::linearizeResidual(CalibHessian* HCalib,
   return energyLeft;
 }
 
-}  // namespace dso
+} // namespace dso

@@ -35,8 +35,9 @@ namespace dso {
 
 PixelSelector::PixelSelector(int w, int h) {
   randomPattern = new unsigned char[w * h];
-  std::srand(3141592);  // want to be deterministic.
-  for (int i = 0; i < w * h; i++) randomPattern[i] = rand() & 0xFF;
+  std::srand(3141592); // want to be deterministic.
+  for (int i = 0; i < w * h; i++)
+    randomPattern[i] = rand() & 0xFF;
 
   currentPotential = 3;
 
@@ -55,18 +56,19 @@ PixelSelector::~PixelSelector() {
   delete[] thsSmoothed;
 }
 
-int computeHistQuantil(int* hist, float below) {
+int computeHistQuantil(int *hist, float below) {
   int th = hist[0] * below + 0.5f;
   for (int i = 0; i < 90; i++) {
     th -= hist[i + 1];
-    if (th < 0) return i;
+    if (th < 0)
+      return i;
   }
   return 90;
 }
 
-void PixelSelector::makeHists(const FrameHessian* const fh) {
+void PixelSelector::makeHists(const FrameHessian *const fh) {
   gradHistFrame = fh;
-  float* mapmax0 = fh->absSquaredGrad[0];
+  float *mapmax0 = fh->absSquaredGrad[0];
 
   int w = wG[0];
   int h = hG[0];
@@ -77,17 +79,19 @@ void PixelSelector::makeHists(const FrameHessian* const fh) {
 
   for (int y = 0; y < h32; y++)
     for (int x = 0; x < w32; x++) {
-      float* map0 = mapmax0 + 32 * x + 32 * y * w;
-      int* hist0 = gradHist;  // + 50*(x+y*w32);
+      float *map0 = mapmax0 + 32 * x + 32 * y * w;
+      int *hist0 = gradHist; // + 50*(x+y*w32);
       memset(hist0, 0, sizeof(int) * 50);
 
       for (int j = 0; j < 32; j++)
         for (int i = 0; i < 32; i++) {
           int it = i + 32 * x;
           int jt = j + 32 * y;
-          if (it > w - 2 || jt > h - 2 || it < 1 || jt < 1) continue;
+          if (it > w - 2 || jt > h - 2 || it < 1 || jt < 1)
+            continue;
           int g = sqrtf(map0[i + j * w]);
-          if (g > 48) g = 48;
+          if (g > 48)
+            g = 48;
           hist0[g + 1]++;
           hist0[0]++;
         }
@@ -139,7 +143,7 @@ void PixelSelector::makeHists(const FrameHessian* const fh) {
       thsSmoothed[x + y * w32] = (sum / num) * (sum / num);
     }
 }
-int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
+int PixelSelector::makeMaps(const FrameHessian *const fh, float *map_out,
                             float density, int recursionsLeft, bool plot,
                             float thFactor) {
   float numHave = 0;
@@ -155,8 +159,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
   //		for(int i=0;i<wG[0]*hG[0];i++)
   //		{
   //			float v = fh->dI[i][0]*0.8;
-  //			img8u.at<uchar>(i) = (!std::isfinite(v) || v>255) ? 255 :
-  //v;
+  //			img8u.at<uchar>(i) = (!std::isfinite(v) || v>255) ? 255
+  //: v;
   //		}
   //		cv::FAST(img8u, pts, setting_pixelSelectionUseFast, true);
   //		for(unsigned int i=0;i<pts.size();i++)
@@ -177,7 +181,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
     // we will allow sub-selecting pixels by up to a quotia of 0.25, otherwise
     // we will re-select.
 
-    if (fh != gradHistFrame) makeHists(fh);
+    if (fh != gradHistFrame)
+      makeHists(fh);
 
     // select!
     Eigen::Vector3i n = this->select(fh, map_out, currentPotential, thFactor);
@@ -188,8 +193,9 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
 
     // by default we want to over-sample by 40% just to be sure.
     float K = numHave * (currentPotential + 1) * (currentPotential + 1);
-    idealPotential = sqrtf(K / numWant) - 1;  // round down.
-    if (idealPotential < 1) idealPotential = 1;
+    idealPotential = sqrtf(K / numWant) - 1; // round down.
+    if (idealPotential < 1)
+      idealPotential = 1;
 
     if (recursionsLeft > 0 && quotia > 1.25 && currentPotential > 1) {
       // re-sample to get more points!
@@ -198,8 +204,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
         idealPotential = currentPotential - 1;
 
       //		printf("PixelSelector: have %.2f%%, need %.2f%%.
-      //RESAMPLE with pot %d -> %d.\n", 				100*numHave/(float)(wG[0]*hG[0]),
-      //				100*numWant/(float)(wG[0]*hG[0]),
+      // RESAMPLE with pot %d -> %d.\n",
+      // 100*numHave/(float)(wG[0]*hG[0]), 				100*numWant/(float)(wG[0]*hG[0]),
       //				currentPotential,
       //				idealPotential);
       currentPotential = idealPotential;
@@ -211,8 +217,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
         idealPotential = currentPotential + 1;
 
       //		printf("PixelSelector: have %.2f%%, need %.2f%%.
-      //RESAMPLE with pot %d -> %d.\n", 				100*numHave/(float)(wG[0]*hG[0]),
-      //				100*numWant/(float)(wG[0]*hG[0]),
+      // RESAMPLE with pot %d -> %d.\n",
+      // 100*numHave/(float)(wG[0]*hG[0]), 				100*numWant/(float)(wG[0]*hG[0]),
       //				currentPotential,
       //				idealPotential);
       currentPotential = idealPotential;
@@ -237,8 +243,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
   }
 
   //	printf("PixelSelector: have %.2f%%, need %.2f%%. KEEPCURR with pot %d ->
-  //%d. Subsampled to %.2f%%\n", 			100*numHave/(float)(wG[0]*hG[0]),
-  //			100*numWant/(float)(wG[0]*hG[0]),
+  //%d. Subsampled to %.2f%%\n",
+  //100*numHave/(float)(wG[0]*hG[0]), 			100*numWant/(float)(wG[0]*hG[0]),
   //			currentPotential,
   //			idealPotential,
   //			100*numHaveSub/(float)(wG[0]*hG[0]));
@@ -252,7 +258,8 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
 
     for (int i = 0; i < w * h; i++) {
       float c = fh->dI[i][0] * 0.7;
-      if (c > 255) c = 255;
+      if (c > 255)
+        c = 255;
       img.at(i) = Vec3b(c, c, c);
     }
     IOWrap::displayImage("Selector Image", &img);
@@ -273,13 +280,13 @@ int PixelSelector::makeMaps(const FrameHessian* const fh, float* map_out,
   return numHaveSub;
 }
 
-Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
-                                      float* map_out, int pot, float thFactor) {
-  Eigen::Vector3f const* const map0 = fh->dI;
+Eigen::Vector3i PixelSelector::select(const FrameHessian *const fh,
+                                      float *map_out, int pot, float thFactor) {
+  Eigen::Vector3f const *const map0 = fh->dI;
 
-  float* mapmax0 = fh->absSquaredGrad[0];
-  float* mapmax1 = fh->absSquaredGrad[1];
-  float* mapmax2 = fh->absSquaredGrad[2];
+  float *mapmax0 = fh->absSquaredGrad[0];
+  float *mapmax1 = fh->absSquaredGrad[1];
+  float *mapmax2 = fh->absSquaredGrad[2];
 
   int w = wG[0];
   int w1 = wG[1];
@@ -333,7 +340,8 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
                   int xf = x1 + x234;
                   int yf = y1 + y234;
 
-                  if (xf < 4 || xf >= w - 5 || yf < 4 || yf > h - 4) continue;
+                  if (xf < 4 || xf >= w - 5 || yf < 4 || yf > h - 4)
+                    continue;
 
                   float pixelTH0 = thsSmoothed[(xf >> 5) + (yf >> 5) * thsStep];
                   float pixelTH1 = pixelTH0 * dw1;
@@ -343,7 +351,8 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
                   if (ag0 > pixelTH0 * thFactor) {
                     Vec2f ag0d = map0[idx].tail<2>();
                     float dirNorm = fabsf((float)(ag0d.dot(dir2)));
-                    if (!setting_selectDirectionDistribution) dirNorm = ag0;
+                    if (!setting_selectDirectionDistribution)
+                      dirNorm = ag0;
 
                     if (dirNorm > bestVal2) {
                       bestVal2 = dirNorm;
@@ -352,14 +361,16 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
                       bestIdx4 = -2;
                     }
                   }
-                  if (bestIdx3 == -2) continue;
+                  if (bestIdx3 == -2)
+                    continue;
 
                   float ag1 = mapmax1[(int)(xf * 0.5f + 0.25f) +
                                       (int)(yf * 0.5f + 0.25f) * w1];
                   if (ag1 > pixelTH1 * thFactor) {
                     Vec2f ag0d = map0[idx].tail<2>();
                     float dirNorm = fabsf((float)(ag0d.dot(dir3)));
-                    if (!setting_selectDirectionDistribution) dirNorm = ag1;
+                    if (!setting_selectDirectionDistribution)
+                      dirNorm = ag1;
 
                     if (dirNorm > bestVal3) {
                       bestVal3 = dirNorm;
@@ -367,14 +378,16 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
                       bestIdx4 = -2;
                     }
                   }
-                  if (bestIdx4 == -2) continue;
+                  if (bestIdx4 == -2)
+                    continue;
 
                   float ag2 = mapmax2[(int)(xf * 0.25f + 0.125) +
                                       (int)(yf * 0.25f + 0.125) * w2];
                   if (ag2 > pixelTH2 * thFactor) {
                     Vec2f ag0d = map0[idx].tail<2>();
                     float dirNorm = fabsf((float)(ag0d.dot(dir4)));
-                    if (!setting_selectDirectionDistribution) dirNorm = ag2;
+                    if (!setting_selectDirectionDistribution)
+                      dirNorm = ag2;
 
                     if (dirNorm > bestVal4) {
                       bestVal4 = dirNorm;
@@ -406,4 +419,4 @@ Eigen::Vector3i PixelSelector::select(const FrameHessian* const fh,
   return Eigen::Vector3i(n2, n3, n4);
 }
 
-}  // namespace dso
+} // namespace dso

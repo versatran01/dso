@@ -47,10 +47,10 @@ struct FullJacRowT {
 };
 
 class PointFrameResidual {
- public:
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  EFResidual* efResidual;
+  EFResidual *efResidual;
 
   static int instanceCounter;
 
@@ -62,10 +62,10 @@ class PointFrameResidual {
 
   void setState(ResState s) { state_state = s; }
 
-  PointHessian* point;
-  FrameHessian* host;
-  FrameHessian* target;
-  RawResidualJacobian* J;
+  PointHessian *point;
+  FrameHessian *host;
+  FrameHessian *target;
+  RawResidualJacobian *J;
 
   bool isNew;
 
@@ -74,9 +74,9 @@ class PointFrameResidual {
 
   ~PointFrameResidual();
   PointFrameResidual();
-  PointFrameResidual(PointHessian* point_, FrameHessian* host_,
-                     FrameHessian* target_);
-  double linearize(CalibHessian* HCalib);
+  PointFrameResidual(PointHessian *point_, FrameHessian *host_,
+                     FrameHessian *target_);
+  double linearize(CalibHessian *HCalib);
 
   void resetOOB() {
     state_NewEnergy = state_energy = 0;
@@ -88,7 +88,7 @@ class PointFrameResidual {
 
   void debugPlot();
 
-  void printRows(std::vector<VecX>& v, VecX& r, int nFrames, int nPoints, int M,
+  void printRows(std::vector<VecX> &v, VecX &r, int nFrames, int nPoints, int M,
                  int res);
 };
-}  // namespace dso
+} // namespace dso

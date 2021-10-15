@@ -29,8 +29,8 @@
 
 namespace dso {
 
-PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
-                           CalibHessian* Hcalib) {
+PointHessian::PointHessian(const ImmaturePoint *const rawPoint,
+                           CalibHessian *Hcalib) {
   instanceCounter++;
   host = rawPoint->host;
   hasDepthPrior = false;
@@ -59,11 +59,12 @@ PointHessian::PointHessian(const ImmaturePoint* const rawPoint,
 }
 
 void PointHessian::release() {
-  for (unsigned int i = 0; i < residuals.size(); i++) delete residuals[i];
+  for (unsigned int i = 0; i < residuals.size(); i++)
+    delete residuals[i];
   residuals.clear();
 }
 
-void FrameHessian::setStateZero(const Vec10& state_zero) {
+void FrameHessian::setStateZero(const Vec10 &state_zero) {
   assert(state_zero.head<6>().squaredNorm() < 1e-20);
 
   this->state_zero = state_zero;
@@ -118,7 +119,7 @@ void FrameHessian::release() {
   immaturePoints.clear();
 }
 
-void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
+void FrameHessian::makeImages(float *color, CalibHessian *HCalib) {
   for (int i = 0; i < pyrLevelsUsed; i++) {
     dIp[i] = new Eigen::Vector3f[wG[i] * hG[i]];
     absSquaredGrad[i] = new float[wG[i] * hG[i]];
@@ -128,17 +129,18 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
   // make d0
   int w = wG[0];
   int h = hG[0];
-  for (int i = 0; i < w * h; i++) dI[i][0] = color[i];
+  for (int i = 0; i < w * h; i++)
+    dI[i][0] = color[i];
 
   for (int lvl = 0; lvl < pyrLevelsUsed; lvl++) {
     int wl = wG[lvl], hl = hG[lvl];
-    Eigen::Vector3f* dI_l = dIp[lvl];
+    Eigen::Vector3f *dI_l = dIp[lvl];
 
-    float* dabs_l = absSquaredGrad[lvl];
+    float *dabs_l = absSquaredGrad[lvl];
     if (lvl > 0) {
       int lvlm1 = lvl - 1;
       int wlm1 = wG[lvlm1];
-      Eigen::Vector3f* dI_lm = dIp[lvlm1];
+      Eigen::Vector3f *dI_lm = dIp[lvlm1];
 
       for (int y = 0; y < hl; y++)
         for (int x = 0; x < wl; x++) {
@@ -154,8 +156,10 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
       float dx = 0.5f * (dI_l[idx + 1][0] - dI_l[idx - 1][0]);
       float dy = 0.5f * (dI_l[idx + wl][0] - dI_l[idx - wl][0]);
 
-      if (!std::isfinite(dx)) dx = 0;
-      if (!std::isfinite(dy)) dy = 0;
+      if (!std::isfinite(dx))
+        dx = 0;
+      if (!std::isfinite(dy))
+        dy = 0;
 
       dI_l[idx][1] = dx;
       dI_l[idx][2] = dy;
@@ -164,15 +168,15 @@ void FrameHessian::makeImages(float* color, CalibHessian* HCalib) {
 
       if (setting_gammaWeightsPixelSelect == 1 && HCalib != 0) {
         float gw = HCalib->getBGradOnly((float)(dI_l[idx][0]));
-        dabs_l[idx] *= gw * gw;  // convert to gradient of original color space
-                                 // (before removing response).
+        dabs_l[idx] *= gw * gw; // convert to gradient of original color space
+                                // (before removing response).
       }
     }
   }
 }
 
-void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
-                            CalibHessian* HCalib) {
+void FrameFramePrecalc::set(FrameHessian *host, FrameHessian *target,
+                            CalibHessian *HCalib) {
   this->host = host;
   this->target = target;
 
@@ -203,4 +207,4 @@ void FrameFramePrecalc::set(FrameHessian* host, FrameHessian* target,
   PRE_b0_mode = host->aff_g2l_0().b;
 }
 
-}  // namespace dso
+} // namespace dso

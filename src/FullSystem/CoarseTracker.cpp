@@ -45,11 +45,11 @@
 namespace dso {
 
 template <int b, typename T>
-T* allocAligned(int size, std::vector<T*>& rawPtrVec) {
+T *allocAligned(int size, std::vector<T *> &rawPtrVec) {
   const int padT = 1 + ((1 << b) / sizeof(T));
-  T* ptr = new T[size + padT];
+  T *ptr = new T[size + padT];
   rawPtrVec.push_back(ptr);
-  T* alignedPtr = (T*)((((uintptr_t)(ptr + padT)) >> b) << b);
+  T *alignedPtr = (T *)((((uintptr_t)(ptr + padT)) >> b) << b);
   return alignedPtr;
 }
 
@@ -86,11 +86,12 @@ CoarseTracker::CoarseTracker(int ww, int hh) : lastRef_aff_g2l(0, 0) {
   refFrameID = -1;
 }
 CoarseTracker::~CoarseTracker() {
-  for (float* ptr : ptrToDelete) delete[] ptr;
+  for (float *ptr : ptrToDelete)
+    delete[] ptr;
   ptrToDelete.clear();
 }
 
-void CoarseTracker::makeK(CalibHessian* HCalib) {
+void CoarseTracker::makeK(CalibHessian *HCalib) {
   w[0] = wG[0];
   h[0] = hG[0];
 
@@ -120,16 +121,16 @@ void CoarseTracker::makeK(CalibHessian* HCalib) {
 }
 
 void CoarseTracker::makeCoarseDepthL0(
-    std::vector<FrameHessian*> frameHessians) {
+    std::vector<FrameHessian *> frameHessians) {
   // make coarse tracking templates for latstRef.
   memset(idepth[0], 0, sizeof(float) * w[0] * h[0]);
   memset(weightSums[0], 0, sizeof(float) * w[0] * h[0]);
 
-  for (FrameHessian* fh : frameHessians) {
-    for (PointHessian* ph : fh->pointHessians) {
+  for (FrameHessian *fh : frameHessians) {
+    for (PointHessian *ph : fh->pointHessians) {
       if (ph->lastResiduals[0].first != 0 &&
           ph->lastResiduals[0].second == ResState::IN) {
-        PointFrameResidual* r = ph->lastResiduals[0].first;
+        PointFrameResidual *r = ph->lastResiduals[0].first;
         assert(r->efResidual->isActive() && r->target == lastRef);
         int u = r->centerProjectedTo[0] + 0.5f;
         int v = r->centerProjectedTo[1] + 0.5f;
@@ -146,11 +147,11 @@ void CoarseTracker::makeCoarseDepthL0(
     int lvlm1 = lvl - 1;
     int wl = w[lvl], hl = h[lvl], wlm1 = w[lvlm1];
 
-    float* idepth_l = idepth[lvl];
-    float* weightSums_l = weightSums[lvl];
+    float *idepth_l = idepth[lvl];
+    float *weightSums_l = weightSums[lvl];
 
-    float* idepth_lm = idepth[lvlm1];
-    float* weightSums_lm = weightSums[lvlm1];
+    float *idepth_lm = idepth[lvlm1];
+    float *weightSums_lm = weightSums[lvlm1];
 
     for (int y = 0; y < hl; y++)
       for (int x = 0; x < wl; x++) {
@@ -172,13 +173,13 @@ void CoarseTracker::makeCoarseDepthL0(
     for (int it = 0; it < numIts; it++) {
       int wh = w[lvl] * h[lvl] - w[lvl];
       int wl = w[lvl];
-      float* weightSumsl = weightSums[lvl];
-      float* weightSumsl_bak = weightSums_bak[lvl];
+      float *weightSumsl = weightSums[lvl];
+      float *weightSumsl_bak = weightSums_bak[lvl];
       memcpy(weightSumsl_bak, weightSumsl, w[lvl] * h[lvl] * sizeof(float));
-      float* idepthl =
-          idepth[lvl];  // dotnt need to make a temp copy of depth, since I only
-                        // read values with weightSumsl>0, and write ones with
-                        // weightSumsl<=0.
+      float *idepthl =
+          idepth[lvl]; // dotnt need to make a temp copy of depth, since I only
+                       // read values with weightSumsl>0, and write ones with
+                       // weightSumsl<=0.
       for (int i = w[lvl]; i < wh; i++) {
         if (weightSumsl_bak[i] <= 0) {
           float sum = 0, num = 0, numn = 0;
@@ -215,13 +216,13 @@ void CoarseTracker::makeCoarseDepthL0(
   for (int lvl = 2; lvl < pyrLevelsUsed; lvl++) {
     int wh = w[lvl] * h[lvl] - w[lvl];
     int wl = w[lvl];
-    float* weightSumsl = weightSums[lvl];
-    float* weightSumsl_bak = weightSums_bak[lvl];
+    float *weightSumsl = weightSums[lvl];
+    float *weightSumsl_bak = weightSums_bak[lvl];
     memcpy(weightSumsl_bak, weightSumsl, w[lvl] * h[lvl] * sizeof(float));
-    float* idepthl =
-        idepth[lvl];  // dotnt need to make a temp copy of depth, since I only
-                      // read values with weightSumsl>0, and write ones with
-                      // weightSumsl<=0.
+    float *idepthl =
+        idepth[lvl]; // dotnt need to make a temp copy of depth, since I only
+                     // read values with weightSumsl>0, and write ones with
+                     // weightSumsl<=0.
     for (int i = w[lvl]; i < wh; i++) {
       if (weightSumsl_bak[i] <= 0) {
         float sum = 0, num = 0, numn = 0;
@@ -255,17 +256,17 @@ void CoarseTracker::makeCoarseDepthL0(
 
   // normalize idepths and weights.
   for (int lvl = 0; lvl < pyrLevelsUsed; lvl++) {
-    float* weightSumsl = weightSums[lvl];
-    float* idepthl = idepth[lvl];
-    Eigen::Vector3f* dIRefl = lastRef->dIp[lvl];
+    float *weightSumsl = weightSums[lvl];
+    float *idepthl = idepth[lvl];
+    Eigen::Vector3f *dIRefl = lastRef->dIp[lvl];
 
     int wl = w[lvl], hl = h[lvl];
 
     int lpc_n = 0;
-    float* lpc_u = pc_u[lvl];
-    float* lpc_v = pc_v[lvl];
-    float* lpc_idepth = pc_idepth[lvl];
-    float* lpc_color = pc_color[lvl];
+    float *lpc_u = pc_u[lvl];
+    float *lpc_v = pc_v[lvl];
+    float *lpc_idepth = pc_idepth[lvl];
+    float *lpc_color = pc_color[lvl];
 
     for (int y = 2; y < hl - 2; y++)
       for (int x = 2; x < wl - 2; x++) {
@@ -280,7 +281,7 @@ void CoarseTracker::makeCoarseDepthL0(
 
           if (!std::isfinite(lpc_color[lpc_n]) || !(idepthl[i] > 0)) {
             idepthl[i] = -1;
-            continue;  // just skip if something is wrong.
+            continue; // just skip if something is wrong.
           }
           lpc_n++;
         } else
@@ -293,8 +294,8 @@ void CoarseTracker::makeCoarseDepthL0(
   }
 }
 
-void CoarseTracker::calcGSSSE(int lvl, Mat88& H_out, Vec8& b_out,
-                              const SE3& refToNew, AffLight aff_g2l) {
+void CoarseTracker::calcGSSSE(int lvl, Mat88 &H_out, Vec8 &b_out,
+                              const SE3 &refToNew, AffLight aff_g2l) {
   acc.initialize();
 
   __m128 fxl = _mm_set1_ps(fx[lvl]);
@@ -351,7 +352,7 @@ void CoarseTracker::calcGSSSE(int lvl, Mat88& H_out, Vec8& b_out,
   b_out.segment<1>(7) *= SCALE_B;
 }
 
-Vec6 CoarseTracker::calcRes(int lvl, const SE3& refToNew, AffLight aff_g2l,
+Vec6 CoarseTracker::calcRes(int lvl, const SE3 &refToNew, AffLight aff_g2l,
                             float cutoffTH) {
   float E = 0;
   int numTermsInE = 0;
@@ -360,7 +361,7 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3& refToNew, AffLight aff_g2l,
 
   int wl = w[lvl];
   int hl = h[lvl];
-  Eigen::Vector3f* dINewl = newFrame->dIp[lvl];
+  Eigen::Vector3f *dINewl = newFrame->dIp[lvl];
   float fxl = fx[lvl];
   float fyl = fy[lvl];
   float cxl = cx[lvl];
@@ -379,20 +380,19 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3& refToNew, AffLight aff_g2l,
 
   float maxEnergy =
       2 * setting_huberTH * cutoffTH -
-      setting_huberTH *
-          setting_huberTH;  // energy for r=setting_coarseCutoffTH.
+      setting_huberTH * setting_huberTH; // energy for r=setting_coarseCutoffTH.
 
-  MinimalImageB3* resImage = 0;
+  MinimalImageB3 *resImage = 0;
   if (debugPlot) {
     resImage = new MinimalImageB3(wl, hl);
     resImage->setConst(Vec3b(255, 255, 255));
   }
 
   int nl = pc_n[lvl];
-  float* lpc_u = pc_u[lvl];
-  float* lpc_v = pc_v[lvl];
-  float* lpc_idepth = pc_idepth[lvl];
-  float* lpc_color = pc_color[lvl];
+  float *lpc_u = pc_u[lvl];
+  float *lpc_v = pc_v[lvl];
+  float *lpc_idepth = pc_idepth[lvl];
+  float *lpc_color = pc_color[lvl];
 
   for (int i = 0; i < nl; i++) {
     float id = lpc_idepth[i];
@@ -443,13 +443,15 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3& refToNew, AffLight aff_g2l,
 
     float refColor = lpc_color[i];
     Vec3f hitColor = getInterpolatedElement33(dINewl, Ku, Kv, wl);
-    if (!std::isfinite((float)hitColor[0])) continue;
+    if (!std::isfinite((float)hitColor[0]))
+      continue;
     float residual = hitColor[0] - (float)(affLL[0] * refColor + affLL[1]);
     float hw =
         fabs(residual) < setting_huberTH ? 1 : setting_huberTH / fabs(residual);
 
     if (fabs(residual) > cutoffTH) {
-      if (debugPlot) resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(0, 0, 255));
+      if (debugPlot)
+        resImage->setPixel4(lpc_u[i], lpc_v[i], Vec3b(0, 0, 255));
       E += maxEnergy;
       numTermsInE++;
       numSaturated++;
@@ -505,7 +507,7 @@ Vec6 CoarseTracker::calcRes(int lvl, const SE3& refToNew, AffLight aff_g2l,
 }
 
 void CoarseTracker::setCoarseTrackingRef(
-    std::vector<FrameHessian*> frameHessians) {
+    std::vector<FrameHessian *> frameHessians) {
   assert(frameHessians.size() > 0);
   lastRef = frameHessians.back();
   makeCoarseDepthL0(frameHessians);
@@ -515,10 +517,10 @@ void CoarseTracker::setCoarseTrackingRef(
 
   firstCoarseRMSE = -1;
 }
-bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
-                                      SE3& lastToNew_out, AffLight& aff_g2l_out,
+bool CoarseTracker::trackNewestCoarse(FrameHessian *newFrameHessian,
+                                      SE3 &lastToNew_out, AffLight &aff_g2l_out,
                                       int coarsestLvl, Vec5 minResForAbort,
-                                      IOWrap::Output3DWrapper* wrap) {
+                                      IOWrap::Output3DWrapper *wrap) {
   debugPlot = setting_render_displayCoarseTrackingFull;
   debugPrint = false;
 
@@ -572,20 +574,21 @@ bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
 
     for (int iteration = 0; iteration < maxIterations[lvl]; iteration++) {
       Mat88 Hl = H;
-      for (int i = 0; i < 8; i++) Hl(i, i) *= (1 + lambda);
+      for (int i = 0; i < 8; i++)
+        Hl(i, i) *= (1 + lambda);
       Vec8 inc = Hl.ldlt().solve(-b);
 
-      if (setting_affineOptModeA < 0 && setting_affineOptModeB < 0)  // fix a, b
+      if (setting_affineOptModeA < 0 && setting_affineOptModeB < 0) // fix a, b
       {
         inc.head<6>() = Hl.topLeftCorner<6, 6>().ldlt().solve(-b.head<6>());
         inc.tail<2>().setZero();
       }
-      if (!(setting_affineOptModeA < 0) && setting_affineOptModeB < 0)  // fix b
+      if (!(setting_affineOptModeA < 0) && setting_affineOptModeB < 0) // fix b
       {
         inc.head<7>() = Hl.topLeftCorner<7, 7>().ldlt().solve(-b.head<7>());
         inc.tail<1>().setZero();
       }
-      if (setting_affineOptModeA < 0 && !(setting_affineOptModeB < 0))  // fix a
+      if (setting_affineOptModeA < 0 && !(setting_affineOptModeB < 0)) // fix a
       {
         Mat88 HlStitch = Hl;
         Vec8 bStitch = b;
@@ -611,7 +614,8 @@ bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
       incScaled.segment<1>(6) *= SCALE_A;
       incScaled.segment<1>(7) *= SCALE_B;
 
-      if (!std::isfinite(incScaled.sum())) incScaled.setZero();
+      if (!std::isfinite(incScaled.sum()))
+        incScaled.setZero();
 
       SE3 refToNew_new =
           SE3::exp((Vec6)(incScaled.head<6>())) * refToNew_current;
@@ -652,7 +656,8 @@ bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
       }
 
       if (!(inc.norm() > 1e-3)) {
-        if (debugPrint) printf("inc too small, break!\n");
+        if (debugPrint)
+          printf("inc too small, break!\n");
         break;
       }
     }
@@ -660,7 +665,8 @@ bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
     // set last residual for that level, as well as flow indicators.
     lastResiduals[lvl] = sqrtf((float)(resOld[0] / resOld[1]));
     lastFlowIndicators = resOld.segment<3>(2);
-    if (lastResiduals[lvl] > 1.5 * minResForAbort[lvl]) return false;
+    if (lastResiduals[lvl] > 1.5 * minResForAbort[lvl])
+      return false;
 
     if (levelCutoffRepeat > 1 && !haveRepeated) {
       lvl++;
@@ -686,23 +692,27 @@ bool CoarseTracker::trackNewestCoarse(FrameHessian* newFrameHessian,
       (setting_affineOptModeB == 0 && (fabsf((float)relAff[1]) > 200)))
     return false;
 
-  if (setting_affineOptModeA < 0) aff_g2l_out.a = 0;
-  if (setting_affineOptModeB < 0) aff_g2l_out.b = 0;
+  if (setting_affineOptModeA < 0)
+    aff_g2l_out.a = 0;
+  if (setting_affineOptModeB < 0)
+    aff_g2l_out.b = 0;
 
   return true;
 }
 
 void CoarseTracker::debugPlotIDepthMap(
-    float* minID_pt, float* maxID_pt,
-    std::vector<IOWrap::Output3DWrapper*>& wraps) {
-  if (w[1] == 0) return;
+    float *minID_pt, float *maxID_pt,
+    std::vector<IOWrap::Output3DWrapper *> &wraps) {
+  if (w[1] == 0)
+    return;
 
   int lvl = 0;
 
   {
     std::vector<float> allID;
     for (int i = 0; i < h[lvl] * w[lvl]; i++) {
-      if (idepth[lvl][i] > 0) allID.push_back(idepth[lvl][i]);
+      if (idepth[lvl][i] > 0)
+        allID.push_back(idepth[lvl][i]);
     }
     std::sort(allID.begin(), allID.end());
     int n = allID.size() - 1;
@@ -721,11 +731,15 @@ void CoarseTracker::debugPlotIDepthMap(
         // slowly adapt: change by maximum 10% of old span.
         float maxChange = 0.3 * (*maxID_pt - *minID_pt);
 
-        if (minID < *minID_pt - maxChange) minID = *minID_pt - maxChange;
-        if (minID > *minID_pt + maxChange) minID = *minID_pt + maxChange;
+        if (minID < *minID_pt - maxChange)
+          minID = *minID_pt - maxChange;
+        if (minID > *minID_pt + maxChange)
+          minID = *minID_pt + maxChange;
 
-        if (maxID < *maxID_pt - maxChange) maxID = *maxID_pt - maxChange;
-        if (maxID > *maxID_pt + maxChange) maxID = *maxID_pt + maxChange;
+        if (maxID < *maxID_pt - maxChange)
+          maxID = *maxID_pt - maxChange;
+        if (maxID > *maxID_pt + maxChange)
+          maxID = *maxID_pt + maxChange;
 
         *maxID_pt = maxID;
         *minID_pt = minID;
@@ -736,7 +750,8 @@ void CoarseTracker::debugPlotIDepthMap(
     mf.setBlack();
     for (int i = 0; i < h[lvl] * w[lvl]; i++) {
       int c = lastRef->dIp[lvl][i][0] * 0.9f;
-      if (c > 255) c = 255;
+      if (c > 255)
+        c = 255;
       mf.at(i) = Vec3b(c, c, c);
     }
     int wl = w[lvl];
@@ -744,7 +759,7 @@ void CoarseTracker::debugPlotIDepthMap(
       for (int x = 3; x < wl - 3; x++) {
         int idx = x + y * wl;
         float sid = 0, nid = 0;
-        float* bp = idepth[lvl] + idx;
+        float *bp = idepth[lvl] + idx;
 
         if (bp[0] > 0) {
           sid += bp[0];
@@ -775,7 +790,8 @@ void CoarseTracker::debugPlotIDepthMap(
       }
     // IOWrap::displayImage("coarseDepth LVL0", &mf, false);
 
-    for (IOWrap::Output3DWrapper* ow : wraps) ow->pushDepthImage(&mf);
+    for (IOWrap::Output3DWrapper *ow : wraps)
+      ow->pushDepthImage(&mf);
 
     if (debugSaveImages) {
       char buf[1000];
@@ -787,11 +803,12 @@ void CoarseTracker::debugPlotIDepthMap(
 }
 
 void CoarseTracker::debugPlotIDepthMapFloat(
-    std::vector<IOWrap::Output3DWrapper*>& wraps) {
-  if (w[1] == 0) return;
+    std::vector<IOWrap::Output3DWrapper *> &wraps) {
+  if (w[1] == 0)
+    return;
   int lvl = 0;
   MinimalImageF mim(w[lvl], h[lvl], idepth[lvl]);
-  for (IOWrap::Output3DWrapper* ow : wraps)
+  for (IOWrap::Output3DWrapper *ow : wraps)
     ow->pushDepthImageFloat(&mim, lastRef);
 }
 
@@ -804,7 +821,7 @@ CoarseDistanceMap::CoarseDistanceMap(int ww, int hh) {
   int fac = 1 << (pyrLevelsUsed - 1);
 
   coarseProjectionGrid =
-      new PointFrameResidual*[2048 * (ww * hh / (fac * fac))];
+      new PointFrameResidual *[2048 * (ww * hh / (fac * fac))];
   coarseProjectionGridNum = new int[ww * hh / (fac * fac)];
 
   w[0] = h[0] = 0;
@@ -818,28 +835,31 @@ CoarseDistanceMap::~CoarseDistanceMap() {
 }
 
 void CoarseDistanceMap::makeDistanceMap(
-    std::vector<FrameHessian*> frameHessians, FrameHessian* frame) {
+    std::vector<FrameHessian *> frameHessians, FrameHessian *frame) {
   int w1 = w[1];
   int h1 = h[1];
   int wh1 = w1 * h1;
-  for (int i = 0; i < wh1; i++) fwdWarpedIDDistFinal[i] = 1000;
+  for (int i = 0; i < wh1; i++)
+    fwdWarpedIDDistFinal[i] = 1000;
 
   // make coarse tracking templates for latstRef.
   int numItems = 0;
 
-  for (FrameHessian* fh : frameHessians) {
-    if (frame == fh) continue;
+  for (FrameHessian *fh : frameHessians) {
+    if (frame == fh)
+      continue;
 
     SE3 fhToNew = frame->PRE_worldToCam * fh->PRE_camToWorld;
     Mat33f KRKi = (K[1] * fhToNew.rotationMatrix().cast<float>() * Ki[0]);
     Vec3f Kt = (K[1] * fhToNew.translation().cast<float>());
 
-    for (PointHessian* ph : fh->pointHessians) {
+    for (PointHessian *ph : fh->pointHessians) {
       assert(ph->status == PointHessian::ACTIVE);
       Vec3f ptp = KRKi * Vec3f(ph->u, ph->v, 1) + Kt * ph->idepth_scaled;
       int u = ptp[0] / ptp[2] + 0.5f;
       int v = ptp[1] / ptp[2] + 0.5f;
-      if (!(u > 0 && v > 0 && u < w[1] && v < h[1])) continue;
+      if (!(u > 0 && v > 0 && u < w[1] && v < h[1]))
+        continue;
       fwdWarpedIDDistFinal[u + w1 * v] = 0;
       bfsList1[numItems] = Eigen::Vector2i(u, v);
       numItems++;
@@ -850,21 +870,22 @@ void CoarseDistanceMap::makeDistanceMap(
 }
 
 void CoarseDistanceMap::makeInlierVotes(
-    std::vector<FrameHessian*> frameHessians) {}
+    std::vector<FrameHessian *> frameHessians) {}
 
 void CoarseDistanceMap::growDistBFS(int bfsNum) {
   assert(w[0] != 0);
   int w1 = w[1], h1 = h[1];
   for (int k = 1; k < 40; k++) {
     int bfsNum2 = bfsNum;
-    std::swap<Eigen::Vector2i*>(bfsList1, bfsList2);
+    std::swap<Eigen::Vector2i *>(bfsList1, bfsList2);
     bfsNum = 0;
 
     if (k % 2 == 0) {
       for (int i = 0; i < bfsNum2; i++) {
         int x = bfsList2[i][0];
         int y = bfsList2[i][1];
-        if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;
+        if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1)
+          continue;
         int idx = x + y * w1;
 
         if (fwdWarpedIDDistFinal[idx + 1] > k) {
@@ -892,7 +913,8 @@ void CoarseDistanceMap::growDistBFS(int bfsNum) {
       for (int i = 0; i < bfsNum2; i++) {
         int x = bfsList2[i][0];
         int y = bfsList2[i][1];
-        if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1) continue;
+        if (x == 0 || y == 0 || x == w1 - 1 || y == h1 - 1)
+          continue;
         int idx = x + y * w1;
 
         if (fwdWarpedIDDistFinal[idx + 1] > k) {
@@ -942,13 +964,14 @@ void CoarseDistanceMap::growDistBFS(int bfsNum) {
 }
 
 void CoarseDistanceMap::addIntoDistFinal(int u, int v) {
-  if (w[0] == 0) return;
+  if (w[0] == 0)
+    return;
   bfsList1[0] = Eigen::Vector2i(u, v);
   fwdWarpedIDDistFinal[u + w[1] * v] = 0;
   growDistBFS(1);
 }
 
-void CoarseDistanceMap::makeK(CalibHessian* HCalib) {
+void CoarseDistanceMap::makeK(CalibHessian *HCalib) {
   w[0] = wG[0];
   h[0] = hG[0];
 
@@ -977,4 +1000,4 @@ void CoarseDistanceMap::makeK(CalibHessian* HCalib) {
   }
 }
 
-}  // namespace dso
+} // namespace dso

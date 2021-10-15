@@ -36,7 +36,7 @@ struct CalibHessian;
 struct FrameHessian;
 
 struct Pnt {
- public:
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   // index in jacobian. never changes (actually, there is no reason why).
   float u, v;
@@ -44,7 +44,7 @@ struct Pnt {
   // idepth / isgood / energy during optimization.
   float idepth;
   bool isGood;
-  Vec2f energy;  // (UenergyPhotometric, energyRegularizer)
+  Vec2f energy; // (UenergyPhotometric, energyRegularizer)
   bool isGood_new;
   float idepth_new;
   Vec2f energy_new;
@@ -71,29 +71,29 @@ struct Pnt {
 };
 
 class CoarseInitializer {
- public:
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   CoarseInitializer(int w, int h);
   ~CoarseInitializer();
 
-  void setFirst(CalibHessian* HCalib, FrameHessian* newFrameHessian);
-  bool trackFrame(FrameHessian* newFrameHessian,
-                  std::vector<IOWrap::Output3DWrapper*>& wraps);
-  void calcTGrads(FrameHessian* newFrameHessian);
+  void setFirst(CalibHessian *HCalib, FrameHessian *newFrameHessian);
+  bool trackFrame(FrameHessian *newFrameHessian,
+                  std::vector<IOWrap::Output3DWrapper *> &wraps);
+  void calcTGrads(FrameHessian *newFrameHessian);
 
   int frameID;
   bool fixAffine;
   bool printDebug;
 
-  Pnt* points[PYR_LEVELS];
+  Pnt *points[PYR_LEVELS];
   int numPoints[PYR_LEVELS];
   AffLight thisToNext_aff;
   SE3 thisToNext;
 
-  FrameHessian* firstFrame;
-  FrameHessian* newFrame;
+  FrameHessian *firstFrame;
+  FrameHessian *newFrame;
 
- private:
+private:
   Mat33 K[PYR_LEVELS];
   Mat33 Ki[PYR_LEVELS];
   double fx[PYR_LEVELS];
@@ -106,21 +106,21 @@ class CoarseInitializer {
   double cyi[PYR_LEVELS];
   int w[PYR_LEVELS];
   int h[PYR_LEVELS];
-  void makeK(CalibHessian* HCalib);
+  void makeK(CalibHessian *HCalib);
 
   bool snapped;
   int snappedAt;
 
   // pyramid images & levels on all levels
-  Eigen::Vector3f* dINew[PYR_LEVELS];
-  Eigen::Vector3f* dIFist[PYR_LEVELS];
+  Eigen::Vector3f *dINew[PYR_LEVELS];
+  Eigen::Vector3f *dIFist[PYR_LEVELS];
 
   Eigen::DiagonalMatrix<float, 8> wM;
 
   // temporary buffers for H and b.
-  Vec10f* JbBuffer;  // 0-7: sum(dd * dp). 8: sum(res*dd). 9:
-                     // 1/(1+sum(dd*dd))=inverse hessian entry.
-  Vec10f* JbBuffer_new;
+  Vec10f *JbBuffer; // 0-7: sum(dd * dp). 8: sum(res*dd). 9:
+                    // 1/(1+sum(dd*dd))=inverse hessian entry.
+  Vec10f *JbBuffer_new;
 
   Accumulator9 acc9;
   Accumulator9 acc9SC;
@@ -132,10 +132,10 @@ class CoarseInitializer {
   float regWeight;
   float couplingWeight;
 
-  Vec3f calcResAndGS(int lvl, Mat88f& H_out, Vec8f& b_out, Mat88f& H_out_sc,
-                     Vec8f& b_out_sc, const SE3& refToNew,
+  Vec3f calcResAndGS(int lvl, Mat88f &H_out, Vec8f &b_out, Mat88f &H_out_sc,
+                     Vec8f &b_out_sc, const SE3 &refToNew,
                      AffLight refToNew_aff, bool plot);
-  Vec3f calcEC(int lvl);  // returns OLD NERGY, NEW ENERGY, NUM TERMS.
+  Vec3f calcEC(int lvl); // returns OLD NERGY, NEW ENERGY, NUM TERMS.
   void optReg(int lvl);
 
   void propagateUp(int srcLvl);
@@ -146,9 +146,9 @@ class CoarseInitializer {
   void doStep(int lvl, float lambda, Vec8f inc);
   void applyStep(int lvl);
 
-  void makeGradients(Eigen::Vector3f** data);
+  void makeGradients(Eigen::Vector3f **data);
 
-  void debugPlot(int lvl, std::vector<IOWrap::Output3DWrapper*>& wraps);
+  void debugPlot(int lvl, std::vector<IOWrap::Output3DWrapper *> &wraps);
   void makeNN();
 };
 
@@ -157,11 +157,11 @@ struct FLANNPointcloud {
     num = 0;
     points = 0;
   }
-  inline FLANNPointcloud(int n, Pnt* p) : num(n), points(p) {}
+  inline FLANNPointcloud(int n, Pnt *p) : num(n), points(p) {}
   int num;
-  Pnt* points;
+  Pnt *points;
   inline size_t kdtree_get_point_count() const { return num; }
-  inline float kdtree_distance(const float* p1, const size_t idx_p2,
+  inline float kdtree_distance(const float *p1, const size_t idx_p2,
                                size_t /*size*/) const {
     const float d0 = p1[0] - points[idx_p2].u;
     const float d1 = p1[1] - points[idx_p2].v;
@@ -174,10 +174,9 @@ struct FLANNPointcloud {
     else
       return points[idx].v;
   }
-  template <class BBOX>
-  bool kdtree_get_bbox(BBOX& /* bb */) const {
+  template <class BBOX> bool kdtree_get_bbox(BBOX & /* bb */) const {
     return false;
   }
 };
 
-}  // namespace dso
+} // namespace dso
