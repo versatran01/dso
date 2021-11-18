@@ -113,7 +113,7 @@ namespace IOWrap {
  */
 
 class Output3DWrapper {
-public:
+ public:
   Output3DWrapper() {}
   virtual ~Output3DWrapper() {}
 
@@ -200,5 +200,5 @@ public:
   virtual void reset() {}
 };
 
-} // namespace IOWrap
-} // namespace dso
+}  // namespace IOWrap
+}  // namespace dso

@@ -24,12 +24,13 @@
 #pragma once
 
 #undef Success
-#include "util/NumType.h"
-#include <Eigen/Core>
 #include <pangolin/pangolin.h>
 
+#include <Eigen/Core>
 #include <fstream>
 #include <sstream>
+
+#include "util/NumType.h"
 
 namespace dso {
 class CalibHessian;
@@ -38,7 +39,8 @@ class FrameShell;
 
 namespace IOWrap {
 
-template <int ppp> struct InputPointSparse {
+template <int ppp>
+struct InputPointSparse {
   float u;
   float v;
   float idpeth;
@@ -56,8 +58,7 @@ struct MyVertex {
 
 // stores a pointcloud associated to a Keyframe.
 class KeyFrameDisplay {
-
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   KeyFrameDisplay();
   ~KeyFrameDisplay();
@@ -87,7 +88,7 @@ public:
     return (id < other.id);
   }
 
-private:
+ private:
   float fx, fy, cx, cy;
   float fxi, fyi, cxi, cyi;
   int width, height;
@@ -109,5 +110,5 @@ private:
   pangolin::GlBuffer colorBuffer;
 };
 
-} // namespace IOWrap
-} // namespace dso
+}  // namespace IOWrap
+}  // namespace dso

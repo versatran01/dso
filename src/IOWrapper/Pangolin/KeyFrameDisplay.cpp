@@ -21,18 +21,20 @@
  * along with DSO. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "util/settings.h"
 #include <stdio.h>
+
+#include "util/settings.h"
 
 //#include <GL/glx.h>
 //#include <GL/gl.h>
 //#include <GL/glu.h>
 
+#include <pangolin/pangolin.h>
+
 #include "FullSystem/HessianBlocks.h"
 #include "FullSystem/ImmaturePoint.h"
 #include "KeyFrameDisplay.h"
 #include "util/FrameShell.h"
-#include <pangolin/pangolin.h>
 
 namespace dso {
 namespace IOWrap {
@@ -82,8 +84,7 @@ void KeyFrameDisplay::setFromKF(FrameHessian *fh, CalibHessian *HCalib) {
                 fh->pointHessiansOut.size();
 
   if (numSparseBufferSize < npoints) {
-    if (originalInputSparse != 0)
-      delete originalInputSparse;
+    if (originalInputSparse != 0) delete originalInputSparse;
     numSparseBufferSize = npoints + 100;
     originalInputSparse =
         new InputPointSparse<MAX_RES_PER_POINT>[numSparseBufferSize];
@@ -151,8 +152,7 @@ void KeyFrameDisplay::setFromKF(FrameHessian *fh, CalibHessian *HCalib) {
 }
 
 KeyFrameDisplay::~KeyFrameDisplay() {
-  if (originalInputSparse != 0)
-    delete[] originalInputSparse;
+  if (originalInputSparse != 0) delete[] originalInputSparse;
 }
 
 bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
@@ -163,8 +163,7 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
                   my_sparsifyFactor != sparsity;
   }
 
-  if (!needRefresh)
-    return false;
+  if (!needRefresh) return false;
   needRefresh = false;
 
   my_scaledTH = scaledTH;
@@ -174,8 +173,7 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
   my_sparsifyFactor = sparsity;
 
   // if there are no vertices, done!
-  if (numSparsePoints == 0)
-    return false;
+  if (numSparsePoints == 0) return false;
 
   // make data
   Vec3f *tmpVertexBuffer = new Vec3f[numSparsePoints * patternNum];
@@ -193,32 +191,24 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
     if (my_displayMode == 1 && originalInputSparse[i].status != 1 &&
         originalInputSparse[i].status != 2)
       continue;
-    if (my_displayMode == 2 && originalInputSparse[i].status != 1)
-      continue;
-    if (my_displayMode > 2)
-      continue;
+    if (my_displayMode == 2 && originalInputSparse[i].status != 1) continue;
+    if (my_displayMode > 2) continue;
 
-    if (originalInputSparse[i].idpeth < 0)
-      continue;
+    if (originalInputSparse[i].idpeth < 0) continue;
 
     float depth = 1.0f / originalInputSparse[i].idpeth;
     float depth4 = depth * depth;
     depth4 *= depth4;
     float var = (1.0f / (originalInputSparse[i].idepth_hessian + 0.01));
 
-    if (var * depth4 > my_scaledTH)
-      continue;
+    if (var * depth4 > my_scaledTH) continue;
 
-    if (var > my_absTH)
-      continue;
+    if (var > my_absTH) continue;
 
-    if (originalInputSparse[i].relObsBaseline < my_minRelBS)
-      continue;
+    if (originalInputSparse[i].relObsBaseline < my_minRelBS) continue;
 
     for (int pnt = 0; pnt < patternNum; pnt++) {
-
-      if (my_sparsifyFactor > 1 && rand() % my_sparsifyFactor != 0)
-        continue;
+      if (my_sparsifyFactor > 1 && rand() % my_sparsifyFactor != 0) continue;
       int dx = patternP[pnt][0];
       int dy = patternP[pnt][1];
 
@@ -292,8 +282,7 @@ bool KeyFrameDisplay::refreshPC(bool canRefresh, float scaledTH, float absTH,
 }
 
 void KeyFrameDisplay::drawCam(float lineWidth, float *color, float sizeFactor) {
-  if (width == 0)
-    return;
+  if (width == 0) return;
 
   float sz = sizeFactor;
 
@@ -335,9 +324,7 @@ void KeyFrameDisplay::drawCam(float lineWidth, float *color, float sizeFactor) {
 }
 
 void KeyFrameDisplay::drawPC(float pointSize) {
-
-  if (!bufferValid || numGLBufferGoodPoints == 0)
-    return;
+  if (!bufferValid || numGLBufferGoodPoints == 0) return;
 
   glDisable(GL_LIGHTING);
 
@@ -365,5 +352,5 @@ void KeyFrameDisplay::drawPC(float pointSize) {
   glPopMatrix();
 }
 
-} // namespace IOWrap
-} // namespace dso
+}  // namespace IOWrap
+}  // namespace dso

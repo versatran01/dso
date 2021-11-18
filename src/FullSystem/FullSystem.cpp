@@ -807,9 +807,8 @@ void FullSystem::addActiveFrame(ImageAndExposure *image, int id) {
 
   if (!initialized) {
     // use initializer!
-    if (coarseInitializer->frameID <
-        0)  // first frame set. fh is kept by coarseInitializer.
-    {
+    if (coarseInitializer->frameID < 0) {
+      // first frame set. fh is kept by coarseInitializer.
       coarseInitializer->setFirst(&Hcalib, fh);
     } else if (coarseInitializer->trackFrame(fh, outputWrapper))  // if SNAPPED
     {

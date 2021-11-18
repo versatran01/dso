@@ -22,12 +22,14 @@
  */
 
 #pragma once
+#include <pangolin/pangolin.h>
+
+#include <deque>
+#include <map>
+
 #include "IOWrapper/Output3DWrapper.h"
 #include "boost/thread.hpp"
 #include "util/MinimalImage.h"
-#include <deque>
-#include <map>
-#include <pangolin/pangolin.h>
 
 namespace dso {
 
@@ -46,7 +48,7 @@ struct GraphConnection {
 };
 
 class PangolinDSOViewer : public Output3DWrapper {
-public:
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   PangolinDSOViewer(int w, int h, bool startRunThread = true);
   virtual ~PangolinDSOViewer();
@@ -75,7 +77,7 @@ public:
 
   virtual void reset() override;
 
-private:
+ private:
   bool needReset;
   void reset_internal();
   void drawConstraints();
@@ -122,6 +124,6 @@ private:
   std::deque<float> lastNMappingMs;
 };
 
-} // namespace IOWrap
+}  // namespace IOWrap
 
-} // namespace dso
+}  // namespace dso
