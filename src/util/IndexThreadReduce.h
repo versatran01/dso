@@ -24,12 +24,16 @@
 #pragma once
 #include <stdio.h>
 
+#include <Eigen/Core>
 #include <iostream>
 
 #include "boost/thread.hpp"
+#include "util/NumType.h"
 #include "util/settings.h"
 
 namespace dso {
+
+using namespace boost::placeholders;
 
 template <typename Running>
 class IndexThreadReduce {
